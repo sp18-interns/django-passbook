@@ -22,10 +22,7 @@ CONSTRAINT fk_user_profile foreign key(user_id) references user_credentials(user
 select * from user_profile 
 
 
-create table txn_type(
-txn_type_id serial primary key,
-txn_name varchar(30) not null
-);
+drop table txn_type CASCADE;
 
 insert into txn_type(txn_type_id, txn_name)
 values
@@ -45,3 +42,10 @@ CONSTRAINT fk_user_transactions foreign key(user_id) references user_credentials
 txn_type_id int not null,
 CONSTRAINT fk_user_transactions2 foreign key(txn_type_id) references txn_type(txn_type_id)
 );
+
+create type transact as enum('credit','debit');
+
+alter table user_transactions drop column txn_date, drop column txn_type_id;
+alter table user_transactions add column transaction_date timestamptz, add column transaction_type transact;
+select * from user_transactions ut ;
+alter table user_transactions  drop column credit, drop column debit;
