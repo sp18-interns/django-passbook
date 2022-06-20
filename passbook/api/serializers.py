@@ -12,9 +12,9 @@ class UserCredentialsSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ('name','mobile_number','address','aadhar_number','pan_number',)
+        fields = ('user', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number',)
 
 class TransactionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transactions
-        fields = ('transaction_date','transaction_type','remarks',)
+        fields = ('user', 'transaction_date', 'transaction_type', 'amount', 'remarks',)
