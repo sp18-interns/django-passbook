@@ -1,12 +1,28 @@
 from django.urls import path, include
 from django.urls.conf import re_path
 from . import views
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import DefaultRouter, SimpleRouter
+from rest_framework_nested import routers
 
-router = DefaultRouter()
-router.register('profile', views.ProfileViewSet, basename='profile')
+router = SimpleRouter()
+router.register('users', views.UserViewSet, basename='users')
+
+transaction_router = routers.NestedSimpleRouter(
+    router,
+    r'users',
+    lookup='user')
+
+transaction_router.register(
+    r'transactions',
+    views.TransactionsViewSet,
+    basename='user-transaction'
+)
+
+app_name = 'user'
+
 urlpatterns = [
     path('', include(router.urls)),
+    path('', include(transaction_router.urls)),
     path('signup', views.SignUp.as_view()),
     path('login', views.Login.as_view()),
     # path('profile', views.CreateProfile.as_view()),

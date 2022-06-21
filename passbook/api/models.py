@@ -8,6 +8,7 @@ class UserCredentials(models.Model):
     email = models.EmailField()
 
 
+
 class UserProfile(models.Model):
     name = models.CharField(max_length=50)
     mobile_number = models.BigIntegerField()

@@ -93,11 +93,16 @@ class DeleteProfile(generics.DestroyAPIView):
     serializer_class = UserProfileSerializer
 
 
-class ProfileViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
+class UserViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                      mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin):
     serializer_class = UserProfileSerializer
     queryset = UserProfile.objects.all()
 
+
+
+class TransactionsViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin):
+    serializer_class = TransactionsSerializer
+    queryset = Transactions.objects.all()
 
 class TransactionsList(APIView):
     def post(self, request):
