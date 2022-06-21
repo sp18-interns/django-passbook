@@ -1,17 +1,19 @@
 from rest_framework import serializers
-from .models import UserCredentials, UserProfile, Transactions
+from .models import User, Profile, Transactions
 
-class UserCredentialsSerializer(serializers.ModelSerializer):
+
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserCredentials
-        fields = ('username','email','password',)
+        model = User
+        fields = ('username', 'email', 'password',)
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
-class UserProfileSerializer(serializers.ModelSerializer):
+
+class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserProfile
+        model = Profile
         fields = ('user', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number',)
 
 class TransactionsSerializer(serializers.ModelSerializer):
