@@ -15,6 +15,10 @@ from rest_framework import status
 
 from rest_framework import mixins
 from rest_framework import generics
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_swagger.views import get_swagger_view
+
+from .auth import generate_access_token, generate_refresh_token
 
 # Create your views here.
 
@@ -156,11 +160,17 @@ Using generic class-based views
 """
 
 
+
 class UserList(generics.ListCreateAPIView):
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
+    permission_classes = [IsAuthenticated]
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+

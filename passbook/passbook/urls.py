@@ -15,9 +15,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework import permissions
+from rest_framework.schemas import get_schema_view, openapi
+
+from rest_framework.schemas import get_schema_view
+from rest_framework_swagger.renderers import SwaggerUIRenderer, OpenAPIRenderer
+
+schema_view = get_schema_view(title='Users API', renderer_classes=[OpenAPIRenderer, SwaggerUIRenderer])
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('user.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    path('swagger/', schema_view, name='swagger-ui'),
+    # path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

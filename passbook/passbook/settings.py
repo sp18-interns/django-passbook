@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from rest_framework.templatetags import rest_framework
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -38,7 +40,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'user'
+    'user',
+    'rest_framework.authtoken',
+    'rest_framework_swagger',
 ]
 
 MIDDLEWARE = [
@@ -126,5 +130,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 10,
+
+    # 'DEFAULT_FILTER_BACKENDS': [
+    #     'django_filters.rest_framework.DjangoFilterBackend'
+    #  ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # 'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+
 }
+
+REST_SESSION_LOGIN = False
+REST_USE_JWT = True
+JWT_AUTH_COOKIE = 'jwt-access-token'           # you can set these
+JWT_AUTH_REFRESH_COOKIE = 'jwt-refresh-token'  # to anything
+JWT_AUTH_SECURE = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = ['https://example.com']
