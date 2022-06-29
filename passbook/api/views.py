@@ -1,9 +1,12 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status, generics, mixins, permissions, viewsets, filters
-from .models import User, Profile, Transactions
-from .serializers import ProfileSerializer, UserSerializer, TransactionsSerializer
+from .models import Profile, Transactions, UserCredentials
+from .serializers import ProfileSerializer, MyTokenObtainPairSerializer, TransactionsSerializer, SignupSerializer
 import django_filters.rest_framework
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.exceptions import ValidationError
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 # Create your views here.
@@ -26,26 +29,44 @@ import django_filters.rest_framework
 #         return obj
 
 
-class SignUp(generics.CreateAPIView):
+class SignUp(APIView):
+    permission_classes = []
+
+    def post(self, request):
+        password = request.POST.get('password', None)
+        confirm_password = request.POST.get('confirm_password', None)
+        if password == confirm_password:
+            serializer = SignupSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            data = serializer.data
+            response = status.HTTP_201_CREATED
+        else:
+            data = ''
+            raise ValidationError(
+                {'password_mismatch': 'Password fields did not match.'})
+
+        return Response(data, status=response)
+
     # def post(self, request):
     #     serializer = UserSerializer(data=request.data)
     #     if serializer.is_valid():
     #         serializer.save()
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    # queryset = User.objects.all()
+    # serializer_class = UserSerializer
 
 
-class Login(generics.CreateAPIView):
+class Login(TokenObtainPairView):
     # def post(self, request):
     #     serializer = UserSerializer(data=request.data)
     #     if serializer.is_valid():
     #         serializer.save()
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+    serializer_class = MyTokenObtainPairSerializer
 
 
 # class Profile(APIView):
@@ -96,16 +117,19 @@ class DeleteProfile(generics.DestroyAPIView):
 
 class UserViewSet(viewsets.GenericViewSet, mixins.CreateModelMixin, mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin, mixins.DestroyModelMixin, mixins.ListModelMixin):
+    permission_classes = (AllowAny,)
     serializer_class = ProfileSerializer
     queryset = Profile.objects.all()
 
 
-
-class TransactionsViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin,mixins.RetrieveModelMixin,mixins.UpdateModelMixin,mixins.DestroyModelMixin):
+class TransactionsViewSet(viewsets.GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin,
+                          mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin):
+    permission_classes = (AllowAny,)
     serializer_class = TransactionsSerializer
     queryset = Transactions.objects.all()
     filter_backends = [filters.SearchFilter]
     search_fields = ['amount', 'remarks']
+
 
 class TransactionsList(APIView):
     def post(self, request):
