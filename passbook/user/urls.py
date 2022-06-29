@@ -7,7 +7,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from rest_framework_simplejwt import views as jwt_views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
-    TokenRefreshView,
+    TokenRefreshView, TokenVerifyView,
 )
 
 from django.conf.urls import url
@@ -24,10 +24,9 @@ urlpatterns = [
     #path('', include(router.urls)),
     path('user', views.UserList.as_view()),
     path('user/<int:pk>', views.UserDetail.as_view()),
-    # path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     #url(r'^$', schema_view),
     # path('swagger-ui/', TemplateView.as_view(
     #     template_name='swagger-ui.html',
