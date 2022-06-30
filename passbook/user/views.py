@@ -5,7 +5,7 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import User
+from .models import User, Profile
 from .serializers import UserSerializer
 
 from django.http import Http404
@@ -172,5 +172,7 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
 
 

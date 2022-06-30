@@ -12,3 +12,11 @@ class User(models.Model):
         ordering = ['email']
 
 
+class Profile(models.Model):
+    name = models.CharField(max_length=100)
+    mobile_number = models.BigIntegerField()
+    address = models.CharField(max_length=300)
+    aadhar_number = models.BigIntegerField()
+    pan_number = models.CharField(max_length=10)
+
+
