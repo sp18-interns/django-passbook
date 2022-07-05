@@ -5,8 +5,8 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import User, Profile
-from .serializers import UserSerializer
+from .models import User, Profile, Transaction
+from .serializers import UserSerializer, ProfileSerializer, TransactionsSerializer
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -114,7 +114,7 @@ CLASS BASED VIEWS
 #     snippet = self.get_object(pk)
 #     serializer = UserSerializer(snippet, data=request.data)
 #     if serializer.is_valid():
-#         serializer.save()
+#         serializer.save(snippet_11)
 #         return Response(serializer.data)
 #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 #
@@ -160,19 +160,73 @@ Using generic class-based views
 """
 
 
-
-class UserList(generics.ListCreateAPIView):
-
+class SignUp(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    # print(repr(UserSerializer()))
     permission_classes = [permissions.IsAuthenticated]
+
+
+class Login(generics.GenericAPIView):
+    # queryset = User.objects.all()
+    # serializer_class = UserSerializer
+    # # print(repr(UserSerializer()))
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer_class = UserLoginSerializer(data=request.data)
+        if serializer_class.is_valid(raise_exception=True):
+            return Response(serializer_class.data, status=HTTP_200_OK)
+        return Response(serializer_class.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class UserList(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    # print(repr(UserSerializer()))
+    permission_classes = [permissions.IsAuthenticated]
+
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
-
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
+class UserProfile(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
+class UserTransaction(generics.ListCreateAPIView):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionsSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+# class UserProfile(APIView):
+#
+#     def post(self, request):
+#         serializer = Profile(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#     def get(self, request):
+#         profile = Profile.objects.all()
+#         serializer = ProfileSerializer(profile, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+#
+#     def put(self, request, pk):
+#         profile = self.get_object(pk)
+#         serializer = ProfileSerializer(profile, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+#     def delete(self, request, pk):
+#         profile = self.get_object(pk)
+#         profile.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)

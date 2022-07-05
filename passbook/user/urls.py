@@ -22,11 +22,16 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     #path('', include(router.urls)),
+    path('sign-up', views.SignUp.as_view()),
+    path('login', views.Login.as_view()),
     path('user', views.UserList.as_view()),
-    path('user/<int:pk>', views.UserDetail.as_view()),
+    #path('user/<int:pk>', views.UserDetail.as_view()),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    path('profile/<int:pk>', views.UserProfile.as_view(), name='UserProfile'),
+    path('transaction', views.UserTransaction.as_view()),
+]
     #url(r'^$', schema_view),
     # path('swagger-ui/', TemplateView.as_view(
     #     template_name='swagger-ui.html',
@@ -37,7 +42,6 @@ urlpatterns = [
     #     extra_context={'schema_url':'openapi-schema'}
     # ), name='redoc'),
 
-]
 
-urlpatterns = format_suffix_patterns(urlpatterns)
+#urlpatterns = format_suffix_patterns(urlpatterns)
 

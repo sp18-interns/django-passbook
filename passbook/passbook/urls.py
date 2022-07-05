@@ -20,9 +20,11 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 
 #schema_view = get_schema_view(title='Users API', renderer_classes=[OpenAPIRenderer, SwaggerUIRenderer])
+from user import views
+
 schema_view = get_schema_view(
    openapi.Info(
-      title="Snippets API",
+      title="PARAG'S PASSBOOK API",
       default_version='v1',
       description="Test description",
       terms_of_service="https://www.google.com/policies/terms/",
@@ -36,9 +38,10 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('user.urls')),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('login', include('rest_framework.urls', namespace='rest_framework')),
 
-    # path('swagger/', schema_view, name='swagger-ui'),
+
+     #path('swagger/', schema_view, name='swagger-ui'),
     # path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 
     re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
