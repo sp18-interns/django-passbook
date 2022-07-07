@@ -159,50 +159,78 @@ CLASS BASED VIEWS
 Using generic class-based views
 """
 
+# class SignUpUser(APIView):
+#     def post(self, request, format=None):
+#         print(request)
+#         serializer = UserSerializer.objects.all()
+#
+#         return Response(UserSerializer.data)
+
 
 class SignUp(generics.CreateAPIView):
+    #print(generics.CreateAPIView)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    #print(repr(UserSerializer()))
+    #permission_classes = [permissions.IsAuthenticated]
+
+    # def perform_create(self, serializer):
+    #     pass
+
+
+class Login(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def perform_create(self, serializer):
+        user = User.objects.get(email=serializer.data["email"])
+        print(user)
+
+
+
     # print(repr(UserSerializer()))
-    permission_classes = [permissions.IsAuthenticated]
-
-
-class Login(generics.GenericAPIView):
-    # queryset = User.objects.all()
-    # serializer_class = UserSerializer
-    # # print(repr(UserSerializer()))
     # permission_classes = [permissions.IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
-        serializer_class = UserLoginSerializer(data=request.data)
-        if serializer_class.is_valid(raise_exception=True):
-            return Response(serializer_class.data, status=HTTP_200_OK)
-        return Response(serializer_class.errors, status=HTTP_400_BAD_REQUEST)
+    # def post(self, request, *args, **kwargs):
+    #     serializer_class = UserLoginSerializer(data=request.data)
+    #     if serializer_class.is_valid(raise_exception=True):
+    #         return Response(serializer_class.data, status=HTTP_200_OK)
+    #     return Response(serializer_class.errors, status=HTTP_400_BAD_REQUEST)
 
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     # print(repr(UserSerializer()))
-    permission_classes = [permissions.IsAuthenticated]
+   # permission_classes = [permissions.IsAuthenticated]
 
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
 
-class UserProfile(generics.ListCreateAPIView, generics.RetrieveUpdateDestroyAPIView):
+# class UserProfile(generics.ListCreateAPIView):
+#     queryset = Profile.objects.all()
+#     serializer_class = ProfileSerializer
+#     #permission_classes = [permissions.IsAuthenticated]
+#
+#     def perform_create(self, serializer):
+#         user = User.objects.get(id=self.request.data['user_id'])
+#         serializer.save(user_id=user)
+
+
+class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
 
 class UserTransaction(generics.ListCreateAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionsSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    #permission_classes = [permissions.IsAuthenticated]
 
 # class UserProfile(APIView):
 #
@@ -230,3 +258,28 @@ class UserTransaction(generics.ListCreateAPIView):
 #         profile = self.get_object(pk)
 #         profile.delete()
 #         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# from user.models import Snippet
+# from user.serializers import SnippetSerializer
+# from django.http import Http404
+# from rest_framework.views import APIView
+# from rest_framework.response import Response
+# from rest_framework import status
+#
+#
+# class SnippetList(APIView):
+#     """
+#     List all snippets, or create a new snippet.
+#     """
+#     def get(self, request, format=None):
+#         snippets = Snippet.objects.all()
+#         serializer = SnippetSerializer(snippets, many=True)
+#         return Response(serializer.data)
+#
+#     def post(self, request, format=None):
+#         serializer = SnippetSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

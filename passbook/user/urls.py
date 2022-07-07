@@ -22,14 +22,18 @@ from django.views.generic import TemplateView
 
 urlpatterns = [
     #path('', include(router.urls)),
-    path('sign-up', views.SignUp.as_view()),
+    # path('snippets/', views.SnippetList.as_view()),
+    #path('sign-up-1', views.SignUpUser.as_view()),
     path('login', views.Login.as_view()),
+    path('sign-up', views.SignUp.as_view()),
+
     path('user', views.UserList.as_view()),
     #path('user/<int:pk>', views.UserDetail.as_view()),
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    path('profile/<int:pk>', views.UserProfile.as_view(), name='UserProfile'),
+    #path('profile/', views.UserProfile.as_view(), name='UserProfile'),
+    path('profile/<int:pk>', views.UserProfileDetail.as_view(), name='UserProfileDetail'),
     path('transaction', views.UserTransaction.as_view()),
 ]
     #url(r'^$', schema_view),

@@ -5,6 +5,7 @@ from django.db import models
 
 
 class User(models.Model):
+    id = models.AutoField(primary_key=True)
     email = models.EmailField(max_length=254)
     password = models.CharField(max_length=20)
 
@@ -13,12 +14,13 @@ class User(models.Model):
 
 
 class Profile(models.Model):
-    name = models.CharField(max_length=100)
-    mobile_number = models.BigIntegerField()
-    address = models.CharField(max_length=300)
-    aadhar_number = models.BigIntegerField()
-    pan_number = models.CharField(max_length=10)
-    user_id = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+
+    name = models.CharField(max_length=100, null=True)
+    mobile_number = models.BigIntegerField(null=True)
+    address = models.CharField(max_length=300, null=True)
+    aadhar_number = models.BigIntegerField(null=True)
+    pan_number = models.CharField(max_length=10,null=True)
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profiles')
 
 
 class Transaction(models.Model):
@@ -33,4 +35,19 @@ class Transaction(models.Model):
     remarks = models.CharField(max_length=200)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     balance = models.IntegerField(null=True)
+
+
+
+
+
+
+class Snippet(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=100, blank=True, default='')
+    code = models.TextField()
+    linenos = models.BooleanField(default=False)
+
+
+    class Meta:
+        ordering = ['created']
 
