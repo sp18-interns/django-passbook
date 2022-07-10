@@ -1,13 +1,20 @@
 from requests import Response
 from rest_framework import serializers, status
+from rest_framework.validators import UniqueValidator
 from rest_framework.views import APIView
 
 from .models import User, Profile, Transaction, Snippet
 
 
 class UserSerializer(serializers.ModelSerializer):
-    #profiles = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
-    #id = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    # profiles = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
+    # id = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+
+    email = serializers.CharField(
+        max_length=254,
+        validators=[UniqueValidator(queryset=User.objects.all(),
+                                    message="Email already exists or already in use")]),
+
     class Meta:
         model = User
         fields = ['id', 'email', 'password']
@@ -18,13 +25,17 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create(**validated_data)
         Profile.objects.create(user_id=user)
+        # TODO -> should return a string user login successful
         return user
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     user_id = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = Profile
         fields = ['name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'user_id']
+
 
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
@@ -32,15 +43,13 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ['email', 'password']
 
 
-
 class TransactionsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks', 'user_id', 'balance']
 
+
 from rest_framework import serializers
-
-
 
 # class SnippetSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)

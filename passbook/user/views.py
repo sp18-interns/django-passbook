@@ -180,12 +180,19 @@ class SignUp(generics.CreateAPIView):
 
 class Login(generics.CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    print(queryset)
+    # serializer_class = UserSerializer
+    # #
+    # def perform_create(self, serializer):
+    #     user = User.objects.get(email=serializer.data["email"])
+    #     print(user)
 
-    def perform_create(self, serializer):
-        user = User.objects.get(email=serializer.data["email"])
-        print(user)
-
+    def post(self, request, *args, **kwargs):
+        serializer = User(data=request.data)
+        if serializer.is_valid():
+            # serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
     # print(repr(UserSerializer()))

@@ -34,7 +34,8 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     #path('profile/', views.UserProfile.as_view(), name='UserProfile'),
     path('profile/<int:pk>', views.UserProfileDetail.as_view(), name='UserProfileDetail'),
-    path('transaction', views.UserTransaction.as_view()),
+    # path('user/<int:pk>/transaction', views.UserTransaction.as_view(), name='Transactions'),   #to create transaction for specific user
+    # path('user/<int:pk>/transaction/<int:pk>',views.UserTransaction.as_view(), name='Transactionsdetails'),
 ]
     #url(r'^$', schema_view),
     # path('swagger-ui/', TemplateView.as_view(
