@@ -1,12 +1,15 @@
 from django.shortcuts import render
+from knox.models import AuthToken
 from rest_framework import viewsets
 from rest_framework import permissions
 
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework_simplejwt.settings import api_settings
+
 from .models import User, Profile, Transaction
-from .serializers import UserSerializer, ProfileSerializer, TransactionsSerializer
+from .serializers import UserSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -14,11 +17,16 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from rest_framework import mixins
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_swagger.views import get_swagger_view
 
 from .auth import generate_access_token, generate_refresh_token
+
+from django.contrib.auth import login
+
+from rest_framework.authtoken.serializers import AuthTokenSerializer
+from knox.views import LoginView as KnoxLoginView
 
 # Create your views here.
 
@@ -159,6 +167,7 @@ CLASS BASED VIEWS
 Using generic class-based views
 """
 
+
 # class SignUpUser(APIView):
 #     def post(self, request, format=None):
 #         print(request)
@@ -167,55 +176,95 @@ Using generic class-based views
 #         return Response(UserSerializer.data)
 
 
-class SignUp(generics.CreateAPIView):
-    #print(generics.CreateAPIView)
-    queryset = User.objects.all()
+class SignUp(generics.GenericAPIView):
+    # print(generics.CreateAPIView)
+    # queryset = User.objects.all()
     serializer_class = UserSerializer
-    #print(repr(UserSerializer()))
-    #permission_classes = [permissions.IsAuthenticated]
-
-    # def perform_create(self, serializer):
-    #     pass
-
-
-class Login(generics.CreateAPIView):
-    queryset = User.objects.all()
-    print(queryset)
-    # serializer_class = UserSerializer
-    # #
-    # def perform_create(self, serializer):
-    #     user = User.objects.get(email=serializer.data["email"])
-    #     print(user)
 
     def post(self, request, *args, **kwargs):
-        serializer = User(data=request.data)
-        if serializer.is_valid():
-            # serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        # KnoxUserSerializer.is_valid(raise_exception=True)
+        return Response({
+            "id": user.id,
+            "email": user.email,
+            "token": api_settings.TOKEN_OBTAIN_SERIALIZER
+        })
 
 
-    # print(repr(UserSerializer()))
-    # permission_classes = [permissions.IsAuthenticated]
+class LoginAPI(generics.GenericAPIView):
+    # permission_classes = (permissions.AllowAny,)
+    serializer_class = UserSerializer
 
-    # def post(self, request, *args, **kwargs):
-    #     serializer_class = UserLoginSerializer(data=request.data)
-    #     if serializer_class.is_valid(raise_exception=True):
-    #         return Response(serializer_class.data, status=HTTP_200_OK)
-    #     return Response(serializer_class.errors, status=HTTP_400_BAD_REQUEST)
+    def post(self, request, format=None):
+        # TODO :- If email is not present then an appropriate message ->Please register with our system
+        # TODO :- Email Presnt but passowird wrong
+        # TODO :- By mistake there 2 or email how will you
+        # TODO :- If password is not follwing the basic strength of password
+        user = User.objects.filter(email=request.data['email'],password=request.data['password'])
+        if user:
+            #TODO :- Fix the response
+            data = Profile.objects.filter(user_id_id=list(user)[0].id)
+            return Response(f'Login successful {list(data)[0].name}')
+        else:
+            return Response("Enter appropriate user")
+        # serializer=self.get_serializer()
+        # serializer.is_valid()
+        # serializer.validated_data()
+        # return Response({
+        #     "id": 25,
+        #     "email": "paragg@g.com",
+        #     "token": api_settings.TOKEN_OBTAIN_SERIALIZER
+        # })
+
+        # serializer = AuthTokenSerializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
+        # user = serializer.validated_data['user']
+        # login(request, user)
+        # return super(LoginAPI, self).post(request, format=None)
+
+
+# class Login(KnoxLoginView):
+#     queryset = User.objects.all()
+#     print(queryset)
+# serializer_class = UserSerializer
+# #
+# def perform_create(self, serializer):
+#     user = User.objects.get(email=serializer.data["email"])
+#     print(user)
+
+# def post(self, request, *args, **kwargs):
+#     serializer = User(data=request.data)
+#     if serializer.is_valid():
+#         # serializer.save()
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# print(repr(UserSerializer()))
+# permission_classes = [permissions.IsAuthenticated]
+
+# def post(self, request, *args, **kwargs):
+#     serializer_class = UserLoginSerializer(data=request.data)
+#     if serializer_class.is_valid(raise_exception=True):
+#         return Response(serializer_class.data, status=HTTP_200_OK)
+#     return Response(serializer_class.errors, status=HTTP_400_BAD_REQUEST)
 
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     # print(repr(UserSerializer()))
-   # permission_classes = [permissions.IsAuthenticated]
+
+
+# permission_classes = [permissions.IsAuthenticated]
 
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
 
 # class UserProfile(generics.ListCreateAPIView):
@@ -231,13 +280,13 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
 class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
 
 class UserTransaction(generics.ListCreateAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionsSerializer
-    #permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
 # class UserProfile(APIView):
 #

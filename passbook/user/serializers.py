@@ -2,8 +2,16 @@ from requests import Response
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from rest_framework.views import APIView
-
+# from django.contrib.auth.models import User
 from .models import User, Profile, Transaction, Snippet
+
+
+# User Serializer
+class KnoxUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email')
+
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -23,6 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
+        # user = User.objects.create(validated_data['email'], validated_data['password'])
         user = User.objects.create(**validated_data)
         Profile.objects.create(user_id=user)
         # TODO -> should return a string user login successful

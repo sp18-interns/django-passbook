@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_swagger',
     'rest_framework_simplejwt',
-
+    'knox',
     'django.contrib.staticfiles',  # required for serving swagger ui's css/js files
     'drf_yasg',
 ]
@@ -140,7 +140,8 @@ REST_FRAMEWORK = {
     #     'django_filters.rest_framework.DjangoFilterBackend'
     #  ],
      'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'knox.auth.TokenAuthentication'
+        #'rest_framework_simplejwt.authentication.JWTAuthentication',
         #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
         #'DEFAULT_PERMISSION_CLASSES': ( 'rest_framework.permissions.IsAdminUser',),
      ]
