@@ -6,6 +6,7 @@ from rest_framework import permissions
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.status import HTTP_202_ACCEPTED, HTTP_401_UNAUTHORIZED
 from rest_framework_simplejwt.settings import api_settings
 
 from .models import User, Profile, Transaction
@@ -172,7 +173,6 @@ Using generic class-based views
 #     def post(self, request, format=None):
 #         print(request)
 #         serializer = UserSerializer.objects.all()
-#
 #         return Response(UserSerializer.data)
 
 
@@ -199,16 +199,22 @@ class LoginAPI(generics.GenericAPIView):
 
     def post(self, request, format=None):
         # TODO :- If email is not present then an appropriate message ->Please register with our system
-        # TODO :- Email Presnt but passowird wrong
+        # TODO :- Email Present but password wrong
         # TODO :- By mistake there 2 or email how will you
-        # TODO :- If password is not follwing the basic strength of password
-        user = User.objects.filter(email=request.data['email'],password=request.data['password'])
+        # TODO :- If password is not following the basic strength of password
+        user = User.objects.filter(email=request.data['email'], password=request.data['password'])
         if user:
-            #TODO :- Fix the response
+            #TODO :- Fix the response - DONE
             data = Profile.objects.filter(user_id_id=list(user)[0].id)
-            return Response(f'Login successful {list(data)[0].name}')
+            return Response(f'Login successful.', status=HTTP_202_ACCEPTED)
+
+        elif (data['email'] == data['email'] & data['password'] != data['password']):
+                return Response('Enter the correct password', status=HTTP_401_UNAUTHORIZED)
+
+        elif data['email'] != data['email'] & data['password'] == data['password']:
+                return Response('Enter correct email', status=HTTP_401_UNAUTHORIZED)
         else:
-            return Response("Enter appropriate user")
+            return Response("Enter appropriate user", status=HTTP_404_NOT_FOUND)
         # serializer=self.get_serializer()
         # serializer.is_valid()
         # serializer.validated_data()
