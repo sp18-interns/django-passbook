@@ -3,8 +3,8 @@ from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from rest_framework.views import APIView
 # from django.contrib.auth.models import User
-from .models import User, Profile, Transaction, Snippet
-
+from .models import User, Profile, Transaction
+import re
 
 # User Serializer
 class KnoxUserSerializer(serializers.ModelSerializer):
@@ -13,15 +13,14 @@ class KnoxUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email')
 
 
-
 class UserSerializer(serializers.ModelSerializer):
     # profiles = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
     # id = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
-    email = serializers.CharField(
-        max_length=254,
-        validators=[UniqueValidator(queryset=User.objects.all(),
-                                    message="Email already exists or already in use")]),
+    # email = serializers.CharField(
+    #     max_length=254,
+    #     validators=[UniqueValidator(queryset=User.objects.all(),
+    #                                 message="Email already exists or already in use")]),
 
     class Meta:
         model = User
@@ -36,6 +35,20 @@ class UserSerializer(serializers.ModelSerializer):
         Profile.objects.create(user_id=user)
         # TODO -> should return a string user login successful
         return user
+
+    def validate_email(self, value):
+        regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        if (re.fullmatch(regex, value)):
+            print("Valid Email")
+            return value
+        else:
+            raise serializers.ValidationError("Invalid Email")
+
+    def validate_password(self, value):
+        if len(value) < 6:
+            raise serializers.ValidationError('Password is too short!')
+        else:
+            return value
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -58,7 +71,7 @@ class TransactionsSerializer(serializers.ModelSerializer):
         fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks', 'user_id', 'balance']
 
 
-from rest_framework import serializers
+#from rest_framework import serializers
 
 # class SnippetSerializer(serializers.Serializer):
 #     id = serializers.IntegerField(read_only=True)
