@@ -11,7 +11,8 @@ from rest_framework.status import HTTP_202_ACCEPTED, HTTP_401_UNAUTHORIZED, HTTP
 from rest_framework_simplejwt.settings import api_settings
 
 from .models import User, Profile, Transaction
-from .serializers import UserSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer
+from .serializers import UserSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer, LoginSerializer, \
+    SignUpSerializer
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -180,7 +181,8 @@ Using generic class-based views
 class SignUp(generics.GenericAPIView):
     # print(generics.CreateAPIView)
     # queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = SignUpSerializer
+
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -196,7 +198,7 @@ class SignUp(generics.GenericAPIView):
 
 class LoginAPI(generics.GenericAPIView):
     # permission_classes = (permissions.AllowAny,)
-    serializer_class = UserSerializer
+    serializer_class = LoginSerializer
 
     def post(self, request, format=None, data=None):
         # TODO :- If email is not present then an appropriate message ->Please register with our system - DONE
@@ -209,14 +211,14 @@ class LoginAPI(generics.GenericAPIView):
             data = Profile.objects.filter(user_id_id=list(user)[0].id)
             return Response(f'Login successful.', status=HTTP_200_OK)
 
-        elif (data['email'] == None):
+        elif isinstance(request.data['email'], type(None)):
             return Response('Please Sign-up with our system', status=HTTP_400_BAD_REQUEST)
 
-        elif (data['email'] == data['email'] & data['password'] != data['password']):
-                return Response('Enter the correct password', status=HTTP_400_BAD_REQUEST)
+        elif (request.data['email'] == data['email']) and (request.data['password'] != data['password']):
+            return Response('Enter the correct password', status=HTTP_400_BAD_REQUEST)
 
-        elif data['email'] != data['email'] & data['password'] == data['password']:
-                return Response('Enter correct email', status=HTTP_400_BAD_REQUEST)
+        elif (request.data['email'] != data['email']) and (request.data['password'] == data['password']):
+            return Response('Enter correct email', status=HTTP_400_BAD_REQUEST)
         else:
             return Response("Enter appropriate user", status=HTTP_404_NOT_FOUND)
         # serializer=self.get_serializer()
@@ -277,17 +279,17 @@ class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     # permission_classes = [permissions.IsAuthenticated]
 
 
-# class UserProfile(generics.ListCreateAPIView):
-#     queryset = Profile.objects.all()
-#     serializer_class = ProfileSerializer
-#     #permission_classes = [permissions.IsAuthenticated]
-#
-#     def perform_create(self, serializer):
-#         user = User.objects.get(id=self.request.data['user_id'])
-#         serializer.save(user_id=user)
+class UserProfile(generics.ListCreateAPIView):
+    queryset = Profile.objects.all()
+    serializer_class = ProfileSerializer
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def perform_create(self, serializer):
+        user = User.objects.get(id=self.request.data['user_id'])
+        serializer.save(user_id=user)
 
 
-class UserProfileDetail(generics.RetrieveUpdateDestroyAPIView):
+class UserProfileDetail(generics.RetrieveUpdateAPIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     # permission_classes = [permissions.IsAuthenticated]

@@ -28,15 +28,20 @@ urlpatterns = [
     #path('sign-up-1', views.SignUpUser.as_view()),
     # path('login', views.Login.as_view()),
     path('sign-up', views.SignUp.as_view(), name='SignUp'),
+
     path('login', LoginAPI.as_view(), name='login'),
     path('logout/', knox_views.LogoutView.as_view(), name='logout'),
-    path('user', views.UserList.as_view()),
-    path('transaction', UserTransaction.as_view(), name='Transaction'),
-    #path('user/<int:pk>', views.UserDetail.as_view()),
+
+    # path('user', views.UserList.as_view()),
+    path('user/<int:pk>', views.UserDetail.as_view()),
+
+    path('user/<int:pk>/transaction', UserTransaction.as_view(), name='Transaction'),
+    # path('user/<int:pk>/transaction/<int:pk>', views.UserTransaction.as_view(), name='Transactionsdetails'),
+
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     # path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    # #path('profile/', views.UserProfile.as_view(), name='UserProfile'),
+    # path('profile/', views.UserProfile.as_view(), name='UserProfile'),
     path('profile/<int:pk>', views.UserProfileDetail.as_view(), name='UserProfileDetail'),
     # path('user/<int:pk>/transaction', views.UserTransaction.as_view(), name='Transactions'),   #to create transaction for specific user
     # path('user/<int:pk>/transaction/<int:pk>',views.UserTransaction.as_view(), name='Transactionsdetails'),
