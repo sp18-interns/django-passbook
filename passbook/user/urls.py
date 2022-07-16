@@ -3,7 +3,7 @@ from rest_framework import routers, permissions
 from rest_framework.schemas import get_schema_view, openapi
 
 from . import views
-from rest_framework.urlpatterns import format_suffix_patterns
+
 from rest_framework_simplejwt import views as jwt_views
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -46,16 +46,5 @@ urlpatterns = [
     # path('user/<int:pk>/transaction', views.UserTransaction.as_view(), name='Transactions'),   #to create transaction for specific user
     # path('user/<int:pk>/transaction/<int:pk>',views.UserTransaction.as_view(), name='Transactionsdetails'),
 ]
-    #url(r'^$', schema_view),
-    # path('swagger-ui/', TemplateView.as_view(
-    #     template_name='swagger-ui.html',
-    #     extra_context={'schema_url':'openapi-schema'}
-    # ), name='swagger-ui'),
-    # path('redoc/', TemplateView.as_view(
-    #     template_name='redoc.html',
-    #     extra_context={'schema_url':'openapi-schema'}
-    # ), name='redoc'),
 
-
-#urlpatterns = format_suffix_patterns(urlpatterns)
 

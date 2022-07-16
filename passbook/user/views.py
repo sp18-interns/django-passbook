@@ -10,9 +10,12 @@ from rest_framework.status import HTTP_202_ACCEPTED, HTTP_401_UNAUTHORIZED, HTTP
     HTTP_404_NOT_FOUND, HTTP_406_NOT_ACCEPTABLE
 from rest_framework_simplejwt.settings import api_settings
 
+
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+
 from .models import User, Profile, Transaction
-from .serializers import UserSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer, LoginSerializer, \
-    SignUpSerializer
+from .serializers import UserSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer, LoginSerializer
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -181,7 +184,7 @@ Using generic class-based views
 class SignUp(generics.GenericAPIView):
     # print(generics.CreateAPIView)
     # queryset = User.objects.all()
-    serializer_class = SignUpSerializer
+    serializer_class = UserSerializer
 
 
     def post(self, request, *args, **kwargs):
@@ -197,7 +200,16 @@ class SignUp(generics.GenericAPIView):
 
 
 class LoginAPI(generics.GenericAPIView):
-    # permission_classes = (permissions.AllowAny,)
+    # serializer_class = LoginSerializer
+    #
+    # def post(self, request, *args, **kwargs):
+    #     serializer = LoginSerializer(data=request.data, context={'request': request})
+    #     serializer.is_valid(raise_exception=True)
+    #     user = serializer.validated_data['user']
+    #     token, created = Token.objects.get_or_create(user=user)
+    #     return Response({"status": status.HTTP_200_OK, "Token": token.key})
+
+    # # permission_classes = (permissions.AllowAny,)
     serializer_class = LoginSerializer
 
     def post(self, request, format=None, data=None):
@@ -205,37 +217,29 @@ class LoginAPI(generics.GenericAPIView):
         # TODO :- Email Present but password wrong - DONE
         # TODO :- By mistake there 2 or email how will you -DONE
         # TODO :- If password is not following the basic strength of password
-        user = User.objects.filter(email=request.data['email'], password=request.data['password'])
-        if user:
-            #TODO :- Fix the response - DONE
-            data = Profile.objects.filter(user_id_id=list(user)[0].id)
-            return Response(f'Login successful.', status=HTTP_200_OK)
 
-        elif isinstance(request.data['email'], type(None)):
-            return Response('Please Sign-up with our system', status=HTTP_400_BAD_REQUEST)
+        if (request.data.get('email') is None) or (isinstance(request.data['email'], type(None))):
+            return Response('Please provide the email id', status=status.HTTP_400_BAD_REQUEST)
 
-        elif (request.data['email'] == data['email']) and (request.data['password'] != data['password']):
-            return Response('Enter the correct password', status=HTTP_400_BAD_REQUEST)
+        if (request.data.get('password') is None) or isinstance(request.data['password'],type(None)):
+            return Response('Please provide the password', status=status.HTTP_400_BAD_REQUEST)
 
-        elif (request.data['email'] != data['email']) and (request.data['password'] == data['password']):
-            return Response('Enter correct email', status=HTTP_400_BAD_REQUEST)
+        # elif (request.data['email'] == ['email']) and (request.data['password'] != data['password']):
+        #     return Response('Enter the correct password', status=HTTP_400_BAD_REQUEST)
+        #
+        # elif (request.data['email'] != data['email']) and (request.data['password'] == data['password']):
+        #     return Response('Enter correct email', status=HTTP_400_BAD_REQUEST)
+
         else:
-            return Response("Enter appropriate user", status=HTTP_404_NOT_FOUND)
-        # serializer=self.get_serializer()
-        # serializer.is_valid()
-        # serializer.validated_data()
-        # return Response({
-        #     "id": 25,
-        #     "email": "paragg@g.com",
-        #     "token": api_settings.TOKEN_OBTAIN_SERIALIZER
-        # })
-
-        # serializer = AuthTokenSerializer(data=request.data)
-        # serializer.is_valid(raise_exception=True)
-        # user = serializer.validated_data['user']
-        # login(request, user)
-        # return super(LoginAPI, self).post(request, format=None)
-
+            user = User.objects.filter(email=request.data['email'])
+            if user:
+                if user.values()[0]['password'] == request.data['password']:
+                    data = Profile.objects.filter(user_id_id=list(user)[0].id)
+                    return Response(f'Login successful.', status=status.HTTP_200_OK)
+                else:
+                    return Response("Please provide the valid password")
+            else:
+                return Response("Please Register with our system")
 
 # class Login(KnoxLoginView):
 #     queryset = User.objects.all()

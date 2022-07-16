@@ -1,3 +1,7 @@
+from importlib.resources import _
+
+from django.contrib.auth import authenticate
+from django.contrib.auth.password_validation import validate_password
 from requests import Response
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
@@ -14,18 +18,7 @@ class KnoxUserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email')
 
-class SignUpSerializer(serializers.ModelSerializer):
-    confirm_password = serializers.SerializerMethodField('confirm_password')
 
-    def confirm_password(self, value):
-        return value.password == value
-
-    class Meta:
-        model = User
-        fields = ['id', 'email', 'password', 'confirm_password']
-        extra_kwargs = {
-            'password': {'write_only': True},
-        }
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -37,11 +30,14 @@ class UserSerializer(serializers.ModelSerializer):
     #     validators=[UniqueValidator(queryset=User.objects.all(),
     #                                 message="Email already exists or already in use")]),
 
+    #confirm_password = serializers.CharField(required=True)
+
     class Meta:
         model = User
         fields = ['id', 'email', 'password']
         extra_kwargs = {
             'password': {'write_only': True},
+            'confirm_password': {'write_only': True}
         }
 
         #TODO - CONFIRM PASSWORD/[ENCODED PASSWORD]
@@ -53,6 +49,11 @@ class UserSerializer(serializers.ModelSerializer):
     #     Profile.objects.create(user_id=user)
     #     # TODO -> should return a string user login successful
     #     return user
+
+    # def validate(self, data):
+    #     if data.get('password') != data.get('confirm_password'):
+    #         raise serializers.ValidationError({'Password': 'Password does not match'})
+    #     return data
 
     def validate_email(self, value):
         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -68,10 +69,7 @@ class UserSerializer(serializers.ModelSerializer):
         else:
             return value
 
-    # def validate_confirm_password(self, value):
-    #     if User.password == value:
-    #         return value
-    #     return serializers.ValidationError('Password and confirm password does not match')
+
 
 class ProfileSerializer(serializers.ModelSerializer):
     #user_id = serializers.PrimaryKeyRelatedField(read_only=True)
@@ -103,6 +101,24 @@ class LoginSerializer(serializers.ModelSerializer):
         model = User
         fields = ['email', 'password']
 
+    # def validate(self, data):
+    #     email = data.get('email')
+    #     password = data.get('password')
+    #
+    #     if email and password:
+    #         user = authenticate(request=self.context.get('request'),
+    #                             email=email, password=password)
+    #     if not user:
+    #         msg = _('Unable to log in with provided credentials.')
+    #         raise serializers.ValidationError(msg, code='authorization')
+    #     else:
+    #         msg = _('Must include "username" and "password".')
+    #         raise serializers.ValidationError(msg, code='authorization')
+    #
+    #     data['user'] = user
+    #     return data
+
+
 
 class TransactionsSerializer(serializers.ModelSerializer):
     class Meta:
@@ -110,28 +126,3 @@ class TransactionsSerializer(serializers.ModelSerializer):
         fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks', 'user_id', 'balance']
 
 
-#from rest_framework import serializers
-
-# class SnippetSerializer(serializers.Serializer):
-#     id = serializers.IntegerField(read_only=True)
-#     title = serializers.CharField(required=False, allow_blank=True, max_length=100)
-#     code = serializers.CharField(style={'base_template': 'textarea.html'})
-#     linenos = serializers.BooleanField(required=False)
-#
-#
-#     def create(self, validated_data):
-#         """
-#         Create and return a new `Snippet` instance, given the validated data.
-#         """
-#         return Snippet.objects.create(**validated_data)
-#
-#     def update(self, instance, validated_data):
-#         """
-#         Update and return an existing `Snippet` instance, given the validated data.
-#         """
-#         instance.title = validated_data.get('title', instance.title)
-#         instance.code = validated_data.get('code', instance.code)
-#         instance.linenos = validated_data.get('linenos', instance.linenos)
-#
-#         instance.save()
-#         return instance
