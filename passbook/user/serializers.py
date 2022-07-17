@@ -1,4 +1,4 @@
-from importlib.resources import _
+
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -21,7 +21,7 @@ class KnoxUserSerializer(serializers.ModelSerializer):
 
 
 
-class UserSerializer(serializers.ModelSerializer):
+class SignUpSerializer(serializers.Serializer):
     # profiles = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
     # id = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
@@ -29,36 +29,39 @@ class UserSerializer(serializers.ModelSerializer):
     #     max_length=254,
     #     validators=[UniqueValidator(queryset=User.objects.all(),
     #                                 message="Email already exists or already in use")]),
-
-    #confirm_password = serializers.CharField(required=True)
+    email = serializers.EmailField()
+    password = serializers.CharField()
+    confirm_password = serializers.CharField(required=True)
 
     class Meta:
-        model = User
-        fields = ['id', 'email', 'password']
-        extra_kwargs = {
-            'password': {'write_only': True},
-            'confirm_password': {'write_only': True}
-        }
+        #model = User
+        fields = ['email', 'password', 'confirm_password']
+        # extra_kwargs = {
+        #     'password': {'write_only': True},
+        #     'confirm_password': {'write_only': True}
+        # }
 
-        #TODO - CONFIRM PASSWORD/[ENCODED PASSWORD]
-        #TODO - TOKEN IMPLEMENTATION
-
-    # def create(self, validated_data):
-    #     # user = User.objects.create(validated_data['email'], validated_data['password'])
-    #     user = User.objects.create(**validated_data)
-    #     Profile.objects.create(user_id=user)
-    #     # TODO -> should return a string user login successful
-    #     return user
-
-    # def validate(self, data):
+    # def post_confirm_password(self, data):
     #     if data.get('password') != data.get('confirm_password'):
     #         raise serializers.ValidationError({'Password': 'Password does not match'})
     #     return data
 
+    def create(self, validated_data):
+        #user = User.objects.create(validated_data['email'], validated_data['password'], validated_data['confirm_password'])
+        data = {'email': validated_data['email'], 'password': validated_data['password']}
+        user = User.objects.create(**data)
+        Profile.objects.create(user_id=user)
+        return user
+
+    def validate(self, data):
+        if data.get('password') != data.get('confirm_password'):
+            raise serializers.ValidationError({'Password': 'Password does not match'})
+        return data
+
     def validate_email(self, value):
         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         if (re.fullmatch(regex, value)):
-            print("Valid Email")
+           # print("Valid Email")
             return value
         else:
             raise serializers.ValidationError("Invalid Email")
@@ -74,7 +77,7 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     #user_id = serializers.PrimaryKeyRelatedField(read_only=True)
 
-    profiles = UserSerializer(many=True, write_only=True)
+    profiles = SignUpSerializer(many=True, write_only=True)
 
     class Meta:
         model = Profile
@@ -89,40 +92,53 @@ class ProfileSerializer(serializers.ModelSerializer):
             return value
 
     def validate_aadhar_number(self, value):
-        if len(str(value)) > 12:
-            raise serializers.ValidationError('Length of aadhar number is greater than 12')
-        elif len(str(value)) < 12:
-            raise serializers.ValidationError('Length of aadhar number is smaller than 12')
-        else:
+        regex = r'/^[01]\d{3}[\s-]?\d{4}[\s-]?\d{4}$/'
+        if re.fullmatch(regex, value):
             return value
+        else:
+            raise serializers.ValidationError("Invalid Aadhar number")
+
+    def validate_pan_number(self, value):
+        regex = r'[A-Z]{5}[0-9]{4}[A-Z]{1}'
+        if re.fullmatch(regex, value):
+            return value
+        else: raise serializers.ValidationError("Invalid PAN")
+
 
 class LoginSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['email', 'password']
 
-    # def validate(self, data):
-    #     email = data.get('email')
-    #     password = data.get('password')
-    #
-    #     if email and password:
-    #         user = authenticate(request=self.context.get('request'),
-    #                             email=email, password=password)
-    #     if not user:
-    #         msg = _('Unable to log in with provided credentials.')
-    #         raise serializers.ValidationError(msg, code='authorization')
-    #     else:
-    #         msg = _('Must include "username" and "password".')
-    #         raise serializers.ValidationError(msg, code='authorization')
-    #
-    #     data['user'] = user
-    #     return data
+
+class TransactionsSerializer(serializers.Serializer):
+
+    amount = serializers.IntegerField()
+    transaction_date = serializers.DateTimeField()
+    transaction_type = serializers.CharField()
+    receiver = serializers.CharField()
+    remarks = serializers.CharField()
 
 
-
-class TransactionsSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Transaction
-        fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks', 'user_id', 'balance']
+        #model = Transaction
+        fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks']
 
+    def validate_amount(self, value):
+        if value > 0:
+            return value
+        else:
+            return serializers.ValidationError("Amount should be positive")
+
+    def validate_transaction_type(self, data):
+        if ("Credit", "Debit") in data:
+            return data
+        else:
+            return serializers.ValidationError("Enter Credit or Debit")
+
+    def validate_receiver(self, data):
+        if len(data) >= 3:
+            return data
+        else:
+            return serializers.ValidationError("Please provide receiver's name greater than 3 letters")
 

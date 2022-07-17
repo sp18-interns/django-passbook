@@ -15,7 +15,7 @@ from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 
 from .models import User, Profile, Transaction
-from .serializers import UserSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer, LoginSerializer
+from .serializers import SignUpSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer, LoginSerializer
 
 from django.http import Http404
 from rest_framework.views import APIView
@@ -184,7 +184,7 @@ Using generic class-based views
 class SignUp(generics.GenericAPIView):
     # print(generics.CreateAPIView)
     # queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = SignUpSerializer
 
 
     def post(self, request, *args, **kwargs):
@@ -221,7 +221,7 @@ class LoginAPI(generics.GenericAPIView):
         if (request.data.get('email') is None) or (isinstance(request.data['email'], type(None))):
             return Response('Please provide the email id', status=status.HTTP_400_BAD_REQUEST)
 
-        if (request.data.get('password') is None) or isinstance(request.data['password'],type(None)):
+        if (request.data.get('password') is None) or (isinstance(request.data['password'],type(None))):
             return Response('Please provide the password', status=status.HTTP_400_BAD_REQUEST)
 
         # elif (request.data['email'] == ['email']) and (request.data['password'] != data['password']):
@@ -237,9 +237,9 @@ class LoginAPI(generics.GenericAPIView):
                     data = Profile.objects.filter(user_id_id=list(user)[0].id)
                     return Response(f'Login successful.', status=status.HTTP_200_OK)
                 else:
-                    return Response("Please provide the valid password")
+                    return Response("Please provide the valid password", status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response("Please Register with our system")
+                return Response("Please Register with our system", status=status.HTTP_400_BAD_REQUEST)
 
 # class Login(KnoxLoginView):
 #     queryset = User.objects.all()
@@ -270,7 +270,7 @@ class LoginAPI(generics.GenericAPIView):
 
 class UserList(generics.ListAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = SignUpSerializer
     # print(repr(UserSerializer()))
 
 
@@ -279,7 +279,7 @@ class UserList(generics.ListAPIView):
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = SignUpSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 
@@ -304,54 +304,7 @@ class UserTransaction(generics.ListCreateAPIView):
     serializer_class = TransactionsSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
-# class UserProfile(APIView):
-#
-#     def post(self, request):
-#         serializer = Profile(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#     def get(self, request):
-#         profile = Profile.objects.all()
-#         serializer = ProfileSerializer(profile, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-#
-#     def put(self, request, pk):
-#         profile = self.get_object(pk)
-#         serializer = ProfileSerializer(profile, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#     def delete(self, request, pk):
-#         profile = self.get_object(pk)
-#         profile.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
+class UserTransactionDetail(generics.RetrieveUpdateAPIView):
+    queryset = Transaction.objects.all()
+    serializer_class = TransactionsSerializer
 
-
-# from user.models import Snippet
-# from user.serializers import SnippetSerializer
-# from django.http import Http404
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status
-#
-#
-# class SnippetList(APIView):
-#     """
-#     List all snippets, or create a new snippet.
-#     """
-#     def get(self, request, format=None):
-#         snippets = Snippet.objects.all()
-#         serializer = SnippetSerializer(snippets, many=True)
-#         return Response(serializer.data)
-#
-#     def post(self, request, format=None):
-#         serializer = SnippetSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
