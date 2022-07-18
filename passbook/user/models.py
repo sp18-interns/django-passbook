@@ -21,7 +21,7 @@ class Profile(models.Model):
     aadhar_number = models.BigIntegerField(null=True)
     pan_number = models.CharField(max_length=10,null=True)
     user_id = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profiles')
-
+    balance = models.IntegerField(null=True)
 
 class Transaction(models.Model):
     class TransactionType(models.TextChoices):
@@ -34,6 +34,6 @@ class Transaction(models.Model):
     receiver = models.CharField(max_length=200)
     remarks = models.CharField(max_length=200)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    balance = models.IntegerField(null=True)
+    closing_balance = models.IntegerField(null=True)
 
 

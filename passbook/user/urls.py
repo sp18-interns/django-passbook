@@ -18,7 +18,7 @@ from django.views.generic import TemplateView
 #router.register('user', views.UserViewSet, basename='users')
 
 # schema_view = get_swagger_view(title='Pastebin API')
-from .views import LoginAPI, UserTransaction, UserTransactionDetail
+from .views import LoginAPI, UserTransaction, UserTransactionDetail, UserProfile
 from knox import views as knox_views
 from .views import LoginAPI
 
@@ -32,11 +32,13 @@ urlpatterns = [
     # path('user', views.UserList.as_view()),
     path('user/<int:pk>', views.UserDetail.as_view()),
 
+    # TODO :- mixing to get the <int:pk>
     path('user/<int:pk>/transaction', UserTransaction.as_view(), name='Transaction'),
     # path('user/<int:pk>/transaction/<int:pk>', UserTransactionDetail.as_view(), name='Transactions_details'),
 
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
 
+    # path('profile', views.UserProfile.as_view(), name='UserProfile'),
     path('profile/<int:pk>', views.UserProfileDetail.as_view(), name='UserProfileDetail'),
 
 ]

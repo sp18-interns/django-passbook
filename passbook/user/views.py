@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from knox.models import AuthToken
+from knox.serializers import UserSerializer
 from rest_framework import viewsets
 from rest_framework import permissions
 
@@ -174,13 +175,6 @@ Using generic class-based views
 """
 
 
-# class SignUpUser(APIView):
-#     def post(self, request, format=None):
-#         print(request)
-#         serializer = UserSerializer.objects.all()
-#         return Response(UserSerializer.data)
-
-
 class SignUp(generics.GenericAPIView):
     # print(generics.CreateAPIView)
     # queryset = User.objects.all()
@@ -223,12 +217,6 @@ class LoginAPI(generics.GenericAPIView):
 
         if (request.data.get('password') is None) or (isinstance(request.data['password'],type(None))):
             return Response('Please provide the password', status=status.HTTP_400_BAD_REQUEST)
-
-        # elif (request.data['email'] == ['email']) and (request.data['password'] != data['password']):
-        #     return Response('Enter the correct password', status=HTTP_400_BAD_REQUEST)
-        #
-        # elif (request.data['email'] != data['email']) and (request.data['password'] == data['password']):
-        #     return Response('Enter correct email', status=HTTP_400_BAD_REQUEST)
 
         else:
             user = User.objects.filter(email=request.data['email'])
@@ -278,29 +266,34 @@ class UserList(generics.ListAPIView):
 
 
 class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    print("data")
     queryset = User.objects.all()
-    serializer_class = SignUpSerializer
+    # serializer_class = UserSerializer
+    #TODO :- user_id, email,aadhar ,pan ,mobile
     # permission_classes = [permissions.IsAuthenticated]
 
 
 class UserProfile(generics.ListCreateAPIView):
-    queryset = Profile.objects.all()
+    #queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     #permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
         user = User.objects.get(id=self.request.data['user_id'])
         serializer.save(user_id=user)
-
+        return Response(serializer.data)
 
 class UserProfileDetail(generics.RetrieveUpdateAPIView):
-    queryset = Profile.objects.all()
+    #queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 
 class UserTransaction(generics.ListCreateAPIView):
     queryset = Transaction.objects.all()
+
+    # TODO :- Query profile to get the latest balance
+    # use that take appropriate action (like trying to debit more than balance and all)
     serializer_class = TransactionsSerializer
     # permission_classes = [permissions.IsAuthenticated]
 

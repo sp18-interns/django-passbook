@@ -25,26 +25,17 @@ class SignUpSerializer(serializers.Serializer):
     # profiles = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
     # id = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
-    # email = serializers.CharField(
-    #     max_length=254,
-    #     validators=[UniqueValidator(queryset=User.objects.all(),
-    #                                 message="Email already exists or already in use")]),
-    email = serializers.EmailField()
+    email = serializers.EmailField(
+        max_length=254,
+        validators=[UniqueValidator(queryset=User.objects.all(),
+                                    message="Email already exists or already in use")])
+
     password = serializers.CharField()
     confirm_password = serializers.CharField(required=True)
 
     class Meta:
         #model = User
         fields = ['email', 'password', 'confirm_password']
-        # extra_kwargs = {
-        #     'password': {'write_only': True},
-        #     'confirm_password': {'write_only': True}
-        # }
-
-    # def post_confirm_password(self, data):
-    #     if data.get('password') != data.get('confirm_password'):
-    #         raise serializers.ValidationError({'Password': 'Password does not match'})
-    #     return data
 
     def create(self, validated_data):
         #user = User.objects.create(validated_data['email'], validated_data['password'], validated_data['confirm_password'])
@@ -74,14 +65,20 @@ class SignUpSerializer(serializers.Serializer):
 
 
 
-class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.Serializer):
     #user_id = serializers.PrimaryKeyRelatedField(read_only=True)
 
     profiles = SignUpSerializer(many=True, write_only=True)
+    name = serializers.CharField()
+    mobile_number = serializers.IntegerField()
+    address = serializers.CharField()
+    aadhar_number = serializers.IntegerField()
+    pan_number = serializers.CharField()
+    balance = serializers.IntegerField()
 
     class Meta:
-        model = Profile
-        fields = ['name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'profiles']
+        #model = Profile
+        fields = [ 'profiles', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
 
     def validate_mobile_number(self, value):
         if len(str(value)) > 10:
@@ -103,6 +100,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         if re.fullmatch(regex, value):
             return value
         else: raise serializers.ValidationError("Invalid PAN")
+
+    def validate_balance(self, value):
+        if value >= 0:
+            return value
+        else: raise serializers.ValidationError("Please input valid balance")
 
 
 class LoginSerializer(serializers.ModelSerializer):
