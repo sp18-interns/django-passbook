@@ -367,14 +367,20 @@ class UserProfileDetail(APIView):
     def put(self, request, user_id):
         try:
             user = User.objects.get(pk=user_id)
-            profile = Profile.objects.all()
-            serializer = ProfileSerializer(user, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response({'aadhar_number': profile.aadhar_number,
-                             'name': profile.name},status=status.HTTP_200_OK)
+            profile = Profile.objects.get(user_id=user.id)
+            serialser = ProfileSerializer(data=request.data)
+            serialser.name = request.data['name']
+            if serialser.is_valid():
+                serialser.save()
+            # serializer = ProfileSerializer(profile, data=request.data)
+            # if serializer.is_valid():
+            #     serializer.name=request.data['name']
+
+            #    serializer.save()
+
+                return Response({serialser.data},status=status.HTTP_200_OK)
             else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(serialser.errors, status=status.HTTP_400_BAD_REQUEST)
         except:
             return Response('wrong input', status=status.HTTP_400_BAD_REQUEST)
 

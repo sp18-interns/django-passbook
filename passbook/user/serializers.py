@@ -67,7 +67,8 @@ class SignUpSerializer(serializers.Serializer):
 class ProfileSerializer(serializers.Serializer):
     #user_id = serializers.PrimaryKeyRelatedField(read_only=True)
 
-    profiles = SignUpSerializer(many=True, write_only=True)
+    #profiles = SignUpSerializer(many=True, write_only=True)
+    email = serializers.EmailField()
     name = serializers.CharField()
     mobile_number = serializers.IntegerField()
     address = serializers.CharField()
@@ -77,7 +78,7 @@ class ProfileSerializer(serializers.Serializer):
 
     class Meta:
         #model = Profile
-        fields = [ 'profiles', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
+        fields = [ 'email', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
 
     def validate_mobile_number(self, value):
         if len(str(value)) > 10:
