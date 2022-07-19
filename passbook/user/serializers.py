@@ -20,7 +20,6 @@ class KnoxUserSerializer(serializers.ModelSerializer):
 
 
 
-
 class SignUpSerializer(serializers.Serializer):
     # profiles = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
     # id = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
@@ -144,3 +143,38 @@ class TransactionsSerializer(serializers.Serializer):
         else:
             return serializers.ValidationError("Please provide receiver's name greater than 3 letters")
 
+class Comment(object):
+    def __init__(self, email, name, mobile_number, address, aadhar_number, pan_number, balance):
+        self.email = email
+        self.name = name
+        self.mobile_number = mobile_number
+        self.address = address
+        self.aadhar_number = aadhar_number
+        self.pan_number = pan_number
+        self.balance = balance
+
+
+class CommentSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    name = serializers.CharField()
+    mobile_number = serializers.IntegerField()
+    address = serializers.CharField()
+    aadhar_number = serializers.IntegerField()
+    pan_number = serializers.CharField()
+    balance = serializers.IntegerField()
+
+    def restore_object(self, attrs, instance=None):
+        """
+        Given a dictionary of deserialized field values, either update
+        an existing model instance, or create a new model instance.
+        """
+        if instance is not None:
+            instance.email = attrs.get('email', instance.email)
+            instance.content = attrs.get('name', instance.name)
+            instance.created = attrs.get('mobile_number', instance.mobile_number)
+            instance.content = attrs.get('address', instance.address)
+            instance.created = attrs.get('aadhar_number', instance.aadhar_number)
+            instance.content = attrs.get('pan_number', instance.pan_number)
+            instance.created = attrs.get('balance', instance.balance)
+            return instance
+        return Comment(**attrs)

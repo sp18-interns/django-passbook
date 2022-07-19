@@ -2,7 +2,6 @@ from django.urls import include, path
 from rest_framework import routers, permissions
 from rest_framework.schemas import get_schema_view, openapi
 
-from . import views
 
 from rest_framework_simplejwt import views as jwt_views
 from rest_framework_simplejwt.views import (
@@ -18,19 +17,19 @@ from django.views.generic import TemplateView
 #router.register('user', views.UserViewSet, basename='users')
 
 # schema_view = get_swagger_view(title='Pastebin API')
-from .views import LoginAPI, UserTransaction, UserTransactionDetail, UserProfile
+from .views import LoginAPI, UserTransaction, UserTransactionDetail, UserProfile, SignUp, UserDetail, UserProfileDetail
 from knox import views as knox_views
 from .views import LoginAPI
 
 urlpatterns = [
 
-    path('sign-up', views.SignUp.as_view(), name='SignUp'),
+    path('sign-up', SignUp.as_view(), name='SignUp'),
 
     path('login', LoginAPI.as_view(), name='login'),
     path('logout/', knox_views.LogoutView.as_view(), name='logout'),
 
     # path('user', views.UserList.as_view()),
-    path('user/<int:pk>', views.UserDetail.as_view()),
+    path('user/<int:pk>', UserDetail.as_view(), name="User_details"),
 
     # TODO :- mixing to get the <int:pk>
     path('user/<int:pk>/transaction', UserTransaction.as_view(), name='Transaction'),
@@ -39,7 +38,7 @@ urlpatterns = [
     path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
 
     # path('profile', views.UserProfile.as_view(), name='UserProfile'),
-    path('profile/<int:pk>', views.UserProfileDetail.as_view(), name='UserProfileDetail'),
+    path('profile/<int:user_id>', UserProfileDetail.as_view(), name='UserProfileDetail'),
 
 ]
 

@@ -10,15 +10,16 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_202_ACCEPTED, HTTP_401_UNAUTHORIZED, HTTP_200_OK, HTTP_400_BAD_REQUEST, \
     HTTP_404_NOT_FOUND, HTTP_406_NOT_ACCEPTABLE
 from rest_framework_simplejwt.settings import api_settings
-
+import json
 
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 
 from .models import User, Profile, Transaction
-from .serializers import SignUpSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer, LoginSerializer
+from .serializers import SignUpSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer, \
+    LoginSerializer, CommentSerializer, Comment
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -180,7 +181,6 @@ class SignUp(generics.GenericAPIView):
     # queryset = User.objects.all()
     serializer_class = SignUpSerializer
 
-
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -215,7 +215,7 @@ class LoginAPI(generics.GenericAPIView):
         if (request.data.get('email') is None) or (isinstance(request.data['email'], type(None))):
             return Response('Please provide the email id', status=status.HTTP_400_BAD_REQUEST)
 
-        if (request.data.get('password') is None) or (isinstance(request.data['password'],type(None))):
+        if (request.data.get('password') is None) or (isinstance(request.data['password'], type(None))):
             return Response('Please provide the password', status=status.HTTP_400_BAD_REQUEST)
 
         else:
@@ -228,6 +228,7 @@ class LoginAPI(generics.GenericAPIView):
                     return Response("Please provide the valid password", status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response("Please Register with our system", status=status.HTTP_400_BAD_REQUEST)
+
 
 # class Login(KnoxLoginView):
 #     queryset = User.objects.all()
@@ -256,37 +257,104 @@ class LoginAPI(generics.GenericAPIView):
 #     return Response(serializer_class.errors, status=HTTP_400_BAD_REQUEST)
 
 
-class UserList(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = SignUpSerializer
-    # print(repr(UserSerializer()))
+# class UserList(generics.ListAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = SignUpSerializer
+#     # print(repr(UserSerializer()))
 
 
 # permission_classes = [permissions.IsAuthenticated]
 
 
-class UserDetail(generics.RetrieveUpdateDestroyAPIView):
-    print("data")
-    queryset = User.objects.all()
+class UserDetail(APIView):
+    # print("data")
+    # queryset = User.objects.all()
     # serializer_class = UserSerializer
-    #TODO :- user_id, email,aadhar ,pan ,mobile
+    # TODO :- user_id, email,aadhar ,pan ,mobile
     # permission_classes = [permissions.IsAuthenticated]
 
+    # def get_object(self, pk):
+    #     print(pk)
+    #     try:
+    #         user = User.objects.get(pk=pk)
+    #
+    #         profile = Profile.objects.get(user_id=user.id)
+    #         return Response({'user': user.email, 'profile': profile.aadhar_number}, status=status.HTTP_200_OK)
+    #     except User.DoesNotExist:
+    #         return Response("User does not exist in the system.", status=status.HTTP_404_NOT_FOUND)
 
-class UserProfile(generics.ListCreateAPIView):
-    #queryset = Profile.objects.all()
+    def get(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+            profile = Profile.objects.get(user_id=user.id)
+            return Response({'email': user.email,
+                             'aadhar_number': profile.aadhar_number,
+                             'name': profile.name,
+                             'address': profile.address,
+                             'mobile_number': profile.mobile_number,
+                             'balance': profile.balance
+                             }, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response("User does not exist in the system.", status=status.HTTP_404_NOT_FOUND)
+
+    # def retrieve(self, request, pk=None):
+    #     try:
+    #         user = User.objects.get(pk=pk)
+    #         profile= Profile.objects.get(user_id=user.id)
+    #         return Response({'user':user,'profile':profile},status=status.HTTP_200_OK)
+    #     except User.DoesNotExist:
+    #         return Response(status=status.HTTP_404_NOT_FOUND)
+    #     pass
+
+    # def list(self, request):
+    #     pass
+
+
+class UserProfile(APIView):
+    queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    #permission_classes = [permissions.IsAuthenticated]
 
-    def perform_create(self, serializer):
+    # permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, serializer):
         user = User.objects.get(id=self.request.data['user_id'])
         serializer.save(user_id=user)
         return Response(serializer.data)
 
-class UserProfileDetail(generics.RetrieveUpdateAPIView):
-    #queryset = Profile.objects.all()
-    serializer_class = ProfileSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+
+class UserProfileDetail(APIView):
+
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+            profile = Profile.objects.get(user_id=user)
+            print(user)
+            print(profile)
+            serializer = CommentSerializer()
+            # serializer.restore_object({'email': user.email,
+            #                  'aadhar_number': profile.aadhar_number,
+            #                  'name': profile.name,
+            #                  'address': profile.address,
+            #                  'mobile_number': profile.mobile_number,
+            #                  'pan_number': profile.pan_number,
+            #                  'balance': profile.balance
+            #                  },Comment)
+            # # serializer.name = profile.name
+            # # serializer.email = user.email
+            # return Response(serializer.data)
+            return Response({'email': user.email,
+                             'aadhar_number': profile.aadhar_number,
+                             'name': profile.name,
+                             'address': profile.address,
+                             'mobile_number': profile.mobile_number,
+                             'pan_number': profile.pan_number,
+                             'balance': profile.balance
+                             }, status=status.HTTP_200_OK)
+        except user.DoesNotExist:
+            return Response({'error': 'profile does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+        # serializer = ProfileSerializer(User)
+        return Response(Comment())
 
 
 class UserTransaction(generics.ListCreateAPIView):
@@ -297,7 +365,7 @@ class UserTransaction(generics.ListCreateAPIView):
     serializer_class = TransactionsSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
+
 class UserTransactionDetail(generics.RetrieveUpdateAPIView):
     queryset = Transaction.objects.all()
     serializer_class = TransactionsSerializer
-
