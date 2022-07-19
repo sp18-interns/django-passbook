@@ -297,6 +297,14 @@ class UserDetail(APIView):
         except User.DoesNotExist:
             return Response("User does not exist in the system.", status=status.HTTP_404_NOT_FOUND)
 
+    def delete(self, request, pk):
+        try:
+            user = User.objects.get(pk=pk)
+            user.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response('wrong input', status=status.HTTP_400_BAD_REQUEST)
+
     # def retrieve(self, request, pk=None):
     #     try:
     #         user = User.objects.get(pk=pk)
@@ -330,7 +338,7 @@ class UserProfileDetail(APIView):
             profile = Profile.objects.get(user_id=user)
             print(user)
             print(profile)
-            serializer = CommentSerializer()
+            serializer = ProfileSerializer()
             # serializer.restore_object({'email': user.email,
             #                  'aadhar_number': profile.aadhar_number,
             #                  'name': profile.name,
@@ -355,6 +363,23 @@ class UserProfileDetail(APIView):
 
         # serializer = ProfileSerializer(User)
         return Response(Comment())
+
+    def put(self, request, user_id):
+        try:
+            user = User.objects.get(pk=user_id)
+            profile = Profile.objects.all()
+            serializer = ProfileSerializer(user, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'aadhar_number': profile.aadhar_number,
+                             'name': profile.name},status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except:
+            return Response('wrong input', status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 
 class UserTransaction(generics.ListCreateAPIView):

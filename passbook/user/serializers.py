@@ -155,6 +155,8 @@ class Comment(object):
 
 
 class CommentSerializer(serializers.Serializer):
+
+
     email = serializers.EmailField()
     name = serializers.CharField()
     mobile_number = serializers.IntegerField()
@@ -162,6 +164,10 @@ class CommentSerializer(serializers.Serializer):
     aadhar_number = serializers.IntegerField()
     pan_number = serializers.CharField()
     balance = serializers.IntegerField()
+
+    class Meta:
+
+        fields = ['email', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
 
     def restore_object(self, attrs, instance=None):
         """
@@ -178,3 +184,29 @@ class CommentSerializer(serializers.Serializer):
             instance.created = attrs.get('balance', instance.balance)
             return instance
         return Comment(**attrs)
+
+    def validate_mobile_number(self, value):
+        if len(str(value)) > 10:
+            raise serializers.ValidationError('Length of mobile numbers is greater than 10')
+        elif len(str(value)) < 10:
+            raise serializers.ValidationError('Length of mobile numbers is smaller than 10')
+        else:
+            return value
+
+    def validate_aadhar_number(self, value):
+        regex = r'/^[01]\d{3}[\s-]?\d{4}[\s-]?\d{4}$/'
+        if re.fullmatch(regex, value):
+            return value
+        else:
+            raise serializers.ValidationError("Invalid Aadhar number")
+
+    def validate_pan_number(self, value):
+        regex = r'[A-Z]{5}[0-9]{4}[A-Z]{1}'
+        if re.fullmatch(regex, value):
+            return value
+        else: raise serializers.ValidationError("Invalid PAN")
+
+    def validate_balance(self, value):
+        if value >= 0:
+            return value
+        else: raise serializers.ValidationError("Please input valid balance")
