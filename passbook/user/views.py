@@ -1,40 +1,14 @@
-from django.shortcuts import render
-from knox.models import AuthToken
-from knox.serializers import UserSerializer
-from rest_framework import viewsets
-from rest_framework import permissions
-
-from rest_framework import status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework.status import HTTP_202_ACCEPTED, HTTP_401_UNAUTHORIZED, HTTP_200_OK, HTTP_400_BAD_REQUEST, \
-    HTTP_404_NOT_FOUND, HTTP_406_NOT_ACCEPTABLE
+from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.settings import api_settings
-import json
-
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.authtoken.models import Token
 
 from .models import User, Profile, Transaction
-from .serializers import SignUpSerializer, ProfileSerializer, TransactionsSerializer, KnoxUserSerializer, \
-    LoginSerializer, CommentSerializer, Comment
+from .serializers import SignUpSerializer, ProfileSerializer, TransactionsSerializer, LoginSerializer, Comment
 
-from django.http import Http404, HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from rest_framework import mixins
 from rest_framework import generics, permissions
-from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework_swagger.views import get_swagger_view
-
-from .auth import generate_access_token, generate_refresh_token
-
-from django.contrib.auth import login
-
-from rest_framework.authtoken.serializers import AuthTokenSerializer
-from knox.views import LoginView as KnoxLoginView
 
 # Create your views here.
 
@@ -305,18 +279,6 @@ class UserDetail(APIView):
         except:
             return Response('wrong input', status=status.HTTP_400_BAD_REQUEST)
 
-    # def retrieve(self, request, pk=None):
-    #     try:
-    #         user = User.objects.get(pk=pk)
-    #         profile= Profile.objects.get(user_id=user.id)
-    #         return Response({'user':user,'profile':profile},status=status.HTTP_200_OK)
-    #     except User.DoesNotExist:
-    #         return Response(status=status.HTTP_404_NOT_FOUND)
-    #     pass
-
-    # def list(self, request):
-    #     pass
-
 
 class UserProfile(APIView):
     queryset = Profile.objects.all()
@@ -331,6 +293,13 @@ class UserProfile(APIView):
 
 
 class UserProfileDetail(APIView):
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            print("error")
+            pass
 
     def get(self, request, user_id):
         try:
@@ -362,29 +331,40 @@ class UserProfileDetail(APIView):
             return Response({'error': 'profile does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         # serializer = ProfileSerializer(User)
-        return Response(Comment())
+        # return Response(Comment())
 
+    @swagger_auto_schema(request_body=ProfileSerializer)
     def put(self, request, user_id):
-        try:
-            user = User.objects.get(pk=user_id)
-            profile = Profile.objects.get(user_id=user.id)
-            serialser = ProfileSerializer(data=request.data)
-            serialser.name = request.data['name']
-            if serialser.is_valid():
-                serialser.save()
-            # serializer = ProfileSerializer(profile, data=request.data)
-            # if serializer.is_valid():
-            #     serializer.name=request.data['name']
-
-            #    serializer.save()
-
-                return Response({serialser.data},status=status.HTTP_200_OK)
-            else:
-                return Response(serialser.errors, status=status.HTTP_400_BAD_REQUEST)
-        except:
-            return Response('wrong input', status=status.HTTP_400_BAD_REQUEST)
+        user = self.get_object(user_id)
+        print(user)
+        serializer = ProfileSerializer(user, data=request.data)
+        print(serializer)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+    # @swagger_auto_schema(request_body=ProfileSerializer)
+    # def put(self, request, user_id):
+    #     try:
+    #         user = User.objects.get(pk=user_id)
+    #         profile = Profile.objects.get(user_id=user.id)
+    #         serialser = ProfileSerializer(data=request.data)
+    #         serialser.name = request.data['name']
+    #         if serialser.is_valid():
+    #             serialser.save()
+    #         # serializer = ProfileSerializer(profile, data=request.data)
+    #         # if serializer.is_valid():
+    #         #     serializer.name=request.data['name']
+    #
+    #         #    serializer.save()
+    #
+    #             return Response({serialser.data},status=status.HTTP_200_OK)
+    #         else:
+    #             return Response(serialser.errors, status=status.HTTP_400_BAD_REQUEST)
+    #     except:
+    #         return Response('wrong input', status=status.HTTP_400_BAD_REQUEST)
 
 
 

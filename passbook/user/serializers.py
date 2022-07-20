@@ -1,22 +1,17 @@
 
 
-from django.contrib.auth import authenticate
-from django.contrib.auth.password_validation import validate_password
-from requests import Response
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
-from rest_framework.views import APIView
-# from django.contrib.auth.models import User
 
 from .models import User, Profile, Transaction
 
 import re
 
 # User Serializer
-class KnoxUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email')
+# class KnoxUserSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('id', 'username', 'email')
 
 
 
@@ -28,16 +23,13 @@ class SignUpSerializer(serializers.Serializer):
         max_length=254,
         validators=[UniqueValidator(queryset=User.objects.all(),
                                     message="Email already exists or already in use")])
-
     password = serializers.CharField()
     confirm_password = serializers.CharField(required=True)
 
     class Meta:
-        #model = User
         fields = ['email', 'password', 'confirm_password']
 
     def create(self, validated_data):
-        #user = User.objects.create(validated_data['email'], validated_data['password'], validated_data['confirm_password'])
         data = {'email': validated_data['email'], 'password': validated_data['password']}
         user = User.objects.create(**data)
         Profile.objects.create(user_id=user)
@@ -78,7 +70,8 @@ class ProfileSerializer(serializers.Serializer):
 
     class Meta:
         #model = Profile
-        fields = [ 'email', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
+        fields = ['email', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
+
 
     def validate_mobile_number(self, value):
         if len(str(value)) > 10:
@@ -88,12 +81,12 @@ class ProfileSerializer(serializers.Serializer):
         else:
             return value
 
-    def validate_aadhar_number(self, value):
-        regex = r'/^[01]\d{3}[\s-]?\d{4}[\s-]?\d{4}$/'
-        if re.fullmatch(regex, value):
-            return value
-        else:
-            raise serializers.ValidationError("Invalid Aadhar number")
+    # def validate_aadhar_number(self, value):
+    #     regex = r'/^[01]\d{3}[\s-]?\d{4}[\s-]?\d{4}$/'
+    #     if re.fullmatch(regex, value):
+    #         return value
+    #     else:
+    #         raise serializers.ValidationError("Invalid Aadhar number")
 
     def validate_pan_number(self, value):
         regex = r'[A-Z]{5}[0-9]{4}[A-Z]{1}'
