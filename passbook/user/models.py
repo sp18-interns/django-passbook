@@ -21,8 +21,8 @@ class Profile(models.Model):
     address = models.CharField(max_length=300, null=True)
     aadhar_number = models.BigIntegerField(null=True)
     pan_number = models.CharField(max_length=10, null=True)
-    user_id = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profiles')
     balance = models.IntegerField(null=True)
+    user = models.OneToOneField(User, related_name='User', on_delete = models.CASCADE, primary_key = True)
 
 
 class Transaction(models.Model):

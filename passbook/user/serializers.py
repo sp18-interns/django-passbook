@@ -55,23 +55,15 @@ class SignUpSerializer(serializers.Serializer):
             return value
 
 
+class ProfileSerializer(serializers.ModelSerializer):
 
-class ProfileSerializer(serializers.Serializer):
-    #user_id = serializers.PrimaryKeyRelatedField(read_only=True)
-
-    #profiles = SignUpSerializer(many=True, write_only=True)
-    email = serializers.EmailField()
-    name = serializers.CharField()
-    mobile_number = serializers.IntegerField()
-    address = serializers.CharField()
-    aadhar_number = serializers.IntegerField()
-    pan_number = serializers.CharField()
-    balance = serializers.IntegerField()
+    def update(self, validated_data, **kwargs):
+        print(validated_data)
+        print(kwargs)
 
     class Meta:
-        #model = Profile
-        fields = ['email', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
-
+        model = Profile
+        fields = ['user', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
 
     def validate_mobile_number(self, value):
         if len(str(value)) > 10:
