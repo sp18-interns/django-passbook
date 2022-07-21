@@ -14,7 +14,6 @@ import re
 #         fields = ('id', 'username', 'email')
 
 
-
 class SignUpSerializer(serializers.Serializer):
     # profiles = serializers.PrimaryKeyRelatedField(many=True, queryset=Profile.objects.all())
     # id = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
@@ -32,7 +31,7 @@ class SignUpSerializer(serializers.Serializer):
     def create(self, validated_data):
         data = {'email': validated_data['email'], 'password': validated_data['password']}
         user = User.objects.create(**data)
-        Profile.objects.create(user_id=user)
+        Profile.objects.create(user=user)
         return user
 
     def validate(self, data):
@@ -55,15 +54,27 @@ class SignUpSerializer(serializers.Serializer):
             return value
 
 
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['email']
+
+
 class ProfileSerializer(serializers.ModelSerializer):
 
-    def update(self, validated_data, **kwargs):
-        print(validated_data)
-        print(kwargs)
+    user = UserSerializer()
 
     class Meta:
         model = Profile
         fields = ['user', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
+
+    def update(self, instance, validated_data, *args, **kwargs):
+        nested_serializer = self.fields['user']
+        nested_instance = instance.user
+        nested_data = validated_data.pop('user')
+        nested_serializer.update(nested_instance, nested_data)
+        return super(ProfileSerializer, self).update(instance, validated_data)
 
     def validate_mobile_number(self, value):
         if len(str(value)) > 10:
@@ -128,6 +139,7 @@ class TransactionsSerializer(serializers.Serializer):
             return data
         else:
             return serializers.ValidationError("Please provide receiver's name greater than 3 letters")
+
 
 class Comment(object):
     def __init__(self, email, name, mobile_number, address, aadhar_number, pan_number, balance):

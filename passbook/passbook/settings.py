@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'knox',
     'django.contrib.staticfiles',  # required for serving swagger ui's css/js files
     'drf_yasg',
+    'phone_field',
 ]
 
 MIDDLEWARE = [

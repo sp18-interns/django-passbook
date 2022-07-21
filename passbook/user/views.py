@@ -301,44 +301,48 @@ class UserProfileDetail(APIView):
             print("error")
             pass
 
-    def get(self, request, user_id):
-        try:
-            user = User.objects.get(pk=user_id)
-            profile = Profile.objects.get(user_id=user)
-            print(user)
-            print(profile)
-            serializer = ProfileSerializer()
-            # serializer.restore_object({'email': user.email,
-            #                  'aadhar_number': profile.aadhar_number,
-            #                  'name': profile.name,
-            #                  'address': profile.address,
-            #                  'mobile_number': profile.mobile_number,
-            #                  'pan_number': profile.pan_number,
-            #                  'balance': profile.balance
-            #                  },Comment)
-            # # serializer.name = profile.name
-            # # serializer.email = user.email
-            # return Response(serializer.data)
-            return Response({'email': user.email,
-                             'aadhar_number': profile.aadhar_number,
-                             'name': profile.name,
-                             'address': profile.address,
-                             'mobile_number': profile.mobile_number,
-                             'pan_number': profile.pan_number,
-                             'balance': profile.balance
-                             }, status=status.HTTP_200_OK)
-        except user.DoesNotExist:
-            return Response({'error': 'profile does not exist'}, status=status.HTTP_404_NOT_FOUND)
+    # def get(self, request, user_id):
+    #     try:
+    #         user = User.objects.get(pk=user_id)
+    #         profile = Profile.objects.get(user_id=user)
+    #         print(user)
+    #         print(profile)
+    #         serializer = ProfileSerializer()
+    #         # serializer.restore_object({'email': user.email,
+    #         #                  'aadhar_number': profile.aadhar_number,
+    #         #                  'name': profile.name,
+    #         #                  'address': profile.address,
+    #         #                  'mobile_number': profile.mobile_number,
+    #         #                  'pan_number': profile.pan_number,
+    #         #                  'balance': profile.balance
+    #         #                  },Comment)
+    #         # # serializer.name = profile.name
+    #         # # serializer.email = user.email
+    #         # return Response(serializer.data)
+    #         return Response({'email': user.email,
+    #                          'aadhar_number': profile.aadhar_number,
+    #                          'name': profile.name,
+    #                          'address': profile.address,
+    #                          'mobile_number': profile.mobile_number,
+    #                          'pan_number': profile.pan_number,
+    #                          'balance': profile.balance
+    #                          }, status=status.HTTP_200_OK)
+    #     except user.DoesNotExist:
+    #         return Response({'error': 'profile does not exist'}, status=status.HTTP_404_NOT_FOUND)
 
         # serializer = ProfileSerializer(User)
         # return Response(Comment())
 
     @swagger_auto_schema(request_body=ProfileSerializer)
     def put(self, request, user_id):
-        user = self.get_object(user_id)
-        print(user)
-        serializer = ProfileSerializer(user, data=request.data)
-        print(serializer)
+
+        profile = Profile.objects.get(user_id=user_id)
+        serializer = ProfileSerializer(instance=profile, data=request.data, partial=True)
+
+        # user = self.get_object(user_id)
+        # print(user)
+        # serializer = ProfileSerializer(user, data=request.data)
+        # print(serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -365,7 +369,6 @@ class UserProfileDetail(APIView):
     #             return Response(serialser.errors, status=status.HTTP_400_BAD_REQUEST)
     #     except:
     #         return Response('wrong input', status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class UserTransaction(generics.ListCreateAPIView):

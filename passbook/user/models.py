@@ -2,7 +2,7 @@ from django.db import models
 
 
 # Create your models here.
-
+#from phone_field import PhoneField
 
 class User(models.Model):
     id = models.AutoField(
@@ -11,8 +11,8 @@ class User(models.Model):
                               max_length=254)  # EmailField is a CharField that checks the value for a valid email address using EmailValidator.
     password = models.CharField(max_length=20)  # CharField is a string field, for small- to large-sized strings
 
-    class Meta:
-        ordering = ['email']
+    # class Meta:
+    #     ordering = ['email']
 
 
 class Profile(models.Model):
