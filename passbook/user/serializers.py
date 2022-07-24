@@ -149,15 +149,16 @@ class TransactionsSerializer(serializers.Serializer):
     # def update(self, instance, validated_data:
     #     instance.amount = validate_data.get('amount', instance.amount))
 
-
     def validate_amount(self, value):
-        if value > 0
+        if value > 0:
             return value
         else:
             return serializers.ValidationError("Amount should be positive")
 
     def validate_transaction_type(self, data):
-        if ("Credit" or "Debit") in data:
+        if ("Credit") in data:
+            return data
+        elif ("Debit") in data:
             return data
         else:
             return serializers.ValidationError("Enter Credit or Debit")
@@ -169,15 +170,15 @@ class TransactionsSerializer(serializers.Serializer):
             return serializers.ValidationError("Please provide receiver's name greater than 3 letters")
 
 
-class Comment(object):
-    def __init__(self, email, name, mobile_number, address, aadhar_number, pan_number, balance):
-        self.email = email
-        self.name = name
-        self.mobile_number = mobile_number
-        self.address = address
-        self.aadhar_number = aadhar_number
-        self.pan_number = pan_number
-        self.balance = balance
+# class Comment(object):
+#     def __init__(self, email, name, mobile_number, address, aadhar_number, pan_number, balance):
+#         self.email = email
+#         self.name = name
+#         self.mobile_number = mobile_number
+#         self.address = address
+#         self.aadhar_number = aadhar_number
+#         self.pan_number = pan_number
+#         self.balance = balance
 
 # class CommentSerializer(serializers.Serializer):
 #

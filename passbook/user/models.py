@@ -1,21 +1,12 @@
 from django.db import models
 
 
-# Create your models here.
-#from phone_field import PhoneField
-
 class User(models.Model):
     id = models.AutoField(
         primary_key=True)  # AutoField is an IntegerField that automatically increments according to available IDs
     email = models.EmailField(unique=True,
                               max_length=254)  # EmailField is a CharField that checks the value for a valid email address using EmailValidator.
     password = models.CharField(max_length=20)  # CharField is a string field, for small- to large-sized strings
-
-    # class Meta:
-    #     ordering = ['email']
-
-    # def __str__(self):
-    #     return self.email
 
 
 class Profile(models.Model):

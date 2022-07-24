@@ -2,7 +2,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.settings import api_settings
 
 from .models import User, Profile, Transaction
-from .serializers import SignUpSerializer, ProfileSerializer, TransactionsSerializer, LoginSerializer, Comment
+from .serializers import SignUpSerializer, ProfileSerializer, TransactionsSerializer, LoginSerializer
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -168,16 +168,7 @@ class SignUp(generics.GenericAPIView):
 
 
 class LoginAPI(generics.GenericAPIView):
-    # serializer_class = LoginSerializer
-    #
-    # def post(self, request, *args, **kwargs):
-    #     serializer = LoginSerializer(data=request.data, context={'request': request})
-    #     serializer.is_valid(raise_exception=True)
-    #     user = serializer.validated_data['user']
-    #     token, created = Token.objects.get_or_create(user=user)
-    #     return Response({"status": status.HTTP_200_OK, "Token": token.key})
 
-    # # permission_classes = (permissions.AllowAny,)
     serializer_class = LoginSerializer
 
     def post(self, request, format=None, data=None):
@@ -202,42 +193,6 @@ class LoginAPI(generics.GenericAPIView):
                     return Response("Please provide the valid password", status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response("Please Register with our system", status=status.HTTP_400_BAD_REQUEST)
-
-
-# class Login(KnoxLoginView):
-#     queryset = User.objects.all()
-#     print(queryset)
-# serializer_class = UserSerializer
-# #
-# def perform_create(self, serializer):
-#     user = User.objects.get(email=serializer.data["email"])
-#     print(user)
-
-# def post(self, request, *args, **kwargs):
-#     serializer = User(data=request.data)
-#     if serializer.is_valid():
-#         # serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# print(repr(UserSerializer()))
-# permission_classes = [permissions.IsAuthenticated]
-
-# def post(self, request, *args, **kwargs):
-#     serializer_class = UserLoginSerializer(data=request.data)
-#     if serializer_class.is_valid(raise_exception=True):
-#         return Response(serializer_class.data, status=HTTP_200_OK)
-#     return Response(serializer_class.errors, status=HTTP_400_BAD_REQUEST)
-
-
-# class UserList(generics.ListAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = SignUpSerializer
-#     # print(repr(UserSerializer()))
-
-
-# permission_classes = [permissions.IsAuthenticated]
 
 
 class UserDetail(APIView):
@@ -348,28 +303,6 @@ class UserProfileDetail(APIView):
             data = serializer.save()
             return Response(data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-    # @swagger_auto_schema(request_body=ProfileSerializer)
-    # def put(self, request, user_id):
-    #     try:
-    #         user = User.objects.get(pk=user_id)
-    #         profile = Profile.objects.get(user_id=user.id)
-    #         serialser = ProfileSerializer(data=request.data)
-    #         serialser.name = request.data['name']
-    #         if serialser.is_valid():
-    #             serialser.save()
-    #         # serializer = ProfileSerializer(profile, data=request.data)
-    #         # if serializer.is_valid():
-    #         #     serializer.name=request.data['name']
-    #
-    #         #    serializer.save()
-    #
-    #             return Response({serialser.data},status=status.HTTP_200_OK)
-    #         else:
-    #             return Response(serialser.errors, status=status.HTTP_400_BAD_REQUEST)
-    #     except:
-    #         return Response('wrong input', status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserTransaction(generics.ListCreateAPIView):
