@@ -10,12 +10,12 @@ class User(models.Model):
 
 
 class Profile(models.Model):
-    name = models.CharField(max_length=100, null=True)
-    mobile_number = models.BigIntegerField(null=True)
-    address = models.CharField(max_length=300, null=True)
-    aadhar_number = models.BigIntegerField(null=True)
-    pan_number = models.CharField(max_length=10, null=True)
-    balance = models.IntegerField(null=True)
+    name = models.CharField(max_length=100)
+    mobile_number = models.BigIntegerField(blank=True)
+    address = models.CharField(max_length=300)
+    aadhar_number = models.BigIntegerField(blank=True)
+    pan_number = models.CharField(max_length=10)
+    balance = models.IntegerField(blank=True)
     user = models.OneToOneField(User, related_name='User', on_delete=models.CASCADE, primary_key=True)
 
 
@@ -24,10 +24,10 @@ class Transaction(models.Model):
         CREDIT = 'Credit'
         DEBIT = 'Debit'
 
-    amount = models.IntegerField(null=True)
+    amount = models.IntegerField()
     transaction_date = models.DateTimeField(auto_now=True)
     transaction_type = models.CharField(max_length=6, choices=TransactionType.choices)
     receiver = models.CharField(max_length=200)
     remarks = models.CharField(max_length=200)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    closing_balance = models.IntegerField(null=True)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    closing_balance = models.IntegerField()
