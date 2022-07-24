@@ -27,6 +27,8 @@ class SignUpSerializer(serializers.Serializer):
     class Meta:
         fields = ['email', 'password', 'confirm_password']
 
+
+
     def create(self, validated_data):
         data = {'email': validated_data['email'], 'password': validated_data['password']}
         user = User.objects.create(**data)

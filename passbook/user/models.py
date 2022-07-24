@@ -11,11 +11,11 @@ class User(models.Model):
 
 class Profile(models.Model):
     name = models.CharField(max_length=100)
-    mobile_number = models.BigIntegerField(blank=True)
+    mobile_number = models.BigIntegerField(null=True)
     address = models.CharField(max_length=300)
-    aadhar_number = models.BigIntegerField(blank=True)
+    aadhar_number = models.BigIntegerField(null=True)
     pan_number = models.CharField(max_length=10)
-    balance = models.IntegerField(blank=True)
+    balance = models.IntegerField(null=True)
     user = models.OneToOneField(User, related_name='User', on_delete=models.CASCADE, primary_key=True)
 
 
