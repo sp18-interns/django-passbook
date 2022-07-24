@@ -187,7 +187,7 @@ class LoginAPI(generics.GenericAPIView):
             user = User.objects.filter(email=request.data['email'])
             if user:
                 if user.values()[0]['password'] == request.data['password']:
-                    data = Profile.objects.filter(user_id_id=list(user)[0].id)
+                    data = Profile.objects.filter(user_id=list(user)[0].id)
                     return Response(f'Login successful.', status=status.HTTP_200_OK)
                 else:
                     return Response("Please provide the valid password", status=status.HTTP_400_BAD_REQUEST)

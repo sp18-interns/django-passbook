@@ -1,11 +1,10 @@
-
-
 from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 
 from .models import User, Profile, Transaction
 
 import re
+
 
 # User Serializer
 # class KnoxUserSerializer(serializers.ModelSerializer):
@@ -42,7 +41,7 @@ class SignUpSerializer(serializers.Serializer):
     def validate_email(self, value):
         regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
         if (re.fullmatch(regex, value)):
-           # print("Valid Email")
+            # print("Valid Email")
             return value
         else:
             raise serializers.ValidationError("Invalid Email")
@@ -55,7 +54,6 @@ class SignUpSerializer(serializers.Serializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = ['email']
@@ -116,12 +114,14 @@ class ProfileSerializer(serializers.Serializer):
         regex = r'[A-Z]{5}[0-9]{4}[A-Z]{1}'
         if re.fullmatch(regex, value):
             return value
-        else: raise serializers.ValidationError("Invalid PAN")
+        else:
+            raise serializers.ValidationError("Invalid PAN")
 
     def validate_balance(self, value):
         if value >= 0:
             return value
-        else: raise serializers.ValidationError("Please input valid balance")
+        else:
+            raise serializers.ValidationError("Please input valid balance")
 
 
 class LoginSerializer(serializers.ModelSerializer):
@@ -131,16 +131,14 @@ class LoginSerializer(serializers.ModelSerializer):
 
 
 class TransactionsSerializer(serializers.Serializer):
-
     amount = serializers.IntegerField()
     transaction_date = serializers.DateTimeField()
     transaction_type = serializers.CharField()
     receiver = serializers.CharField()
     remarks = serializers.CharField()
 
-
     class Meta:
-        #model = Transaction
+        # model = Transaction
         fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks']
 
     def create(self, validated_data):
