@@ -14,6 +14,9 @@ class User(models.Model):
     # class Meta:
     #     ordering = ['email']
 
+    # def __str__(self):
+    #     return self.email
+
 
 class Profile(models.Model):
     name = models.CharField(max_length=100, null=True)

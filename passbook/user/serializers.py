@@ -61,20 +61,41 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['email']
 
 
-class ProfileSerializer(serializers.ModelSerializer):
-
-    user = UserSerializer()
+# class ProfileSerializer(serializers.ModelSerializer):
+class ProfileSerializer(serializers.Serializer):
+    # user = UserSerializer()
 
     class Meta:
-        model = Profile
-        fields = ['user', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
+        # model = Profile
+        fields = ['email', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
 
     def update(self, instance, validated_data, *args, **kwargs):
-        nested_serializer = self.fields['user']
-        nested_instance = instance.user
-        nested_data = validated_data.pop('user')
-        nested_serializer.update(nested_instance, nested_data)
-        return super(ProfileSerializer, self).update(instance, validated_data)
+        # nested_serializer = self.fields['user']
+        # nested_instance = instance.user
+        # nested_data = validated_data.pop('user')
+        user = User.objects.get(pk=instance.pk)
+        profile = Profile.objects.get(pk=instance.pk)
+        if self.data.serializer.initial_data.get('email'):
+            user.email = self.data.serializer.initial_data['email']
+            user.save()
+        if self.data.serializer.initial_data.get('name'):
+            profile.name = self.data.serializer.initial_data['name']
+        if self.data.serializer.initial_data.get('pan_number'):
+            profile.pan_number = self.data.serializer.initial_data['pan_number']
+        profile.save()
+        # pro = ProfileSerializer()
+        # pro.data['email']
+
+        # nested_serializer.update(nested_instance, nested_data)
+        response = {'email': user.email,
+                    'aadhar_number': profile.aadhar_number,
+                    'name': profile.name,
+                    'address': profile.address,
+                    'mobile_number': profile.mobile_number,
+                    'balance': profile.balance
+                    }
+
+        return response
 
     def validate_mobile_number(self, value):
         if len(str(value)) > 10:
@@ -122,14 +143,21 @@ class TransactionsSerializer(serializers.Serializer):
         #model = Transaction
         fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks']
 
+    def create(self, validated_data):
+        return Transaction.objects.create(**validated_data)
+
+    # def update(self, instance, validated_data:
+    #     instance.amount = validate_data.get('amount', instance.amount))
+
+
     def validate_amount(self, value):
-        if value > 0:
+        if value > 0
             return value
         else:
             return serializers.ValidationError("Amount should be positive")
 
     def validate_transaction_type(self, data):
-        if ("Credit", "Debit") in data:
+        if ("Credit" or "Debit") in data:
             return data
         else:
             return serializers.ValidationError("Enter Credit or Debit")
@@ -151,60 +179,59 @@ class Comment(object):
         self.pan_number = pan_number
         self.balance = balance
 
-
-class CommentSerializer(serializers.Serializer):
-
-
-    email = serializers.EmailField()
-    name = serializers.CharField()
-    mobile_number = serializers.IntegerField()
-    address = serializers.CharField()
-    aadhar_number = serializers.IntegerField()
-    pan_number = serializers.CharField()
-    balance = serializers.IntegerField()
-
-    class Meta:
-
-        fields = ['email', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
-
-    def restore_object(self, attrs, instance=None):
-        """
-        Given a dictionary of deserialized field values, either update
-        an existing model instance, or create a new model instance.
-        """
-        if instance is not None:
-            instance.email = attrs.get('email', instance.email)
-            instance.content = attrs.get('name', instance.name)
-            instance.created = attrs.get('mobile_number', instance.mobile_number)
-            instance.content = attrs.get('address', instance.address)
-            instance.created = attrs.get('aadhar_number', instance.aadhar_number)
-            instance.content = attrs.get('pan_number', instance.pan_number)
-            instance.created = attrs.get('balance', instance.balance)
-            return instance
-        return Comment(**attrs)
-
-    def validate_mobile_number(self, value):
-        if len(str(value)) > 10:
-            raise serializers.ValidationError('Length of mobile numbers is greater than 10')
-        elif len(str(value)) < 10:
-            raise serializers.ValidationError('Length of mobile numbers is smaller than 10')
-        else:
-            return value
-
-    def validate_aadhar_number(self, value):
-        regex = r'/^[01]\d{3}[\s-]?\d{4}[\s-]?\d{4}$/'
-        if re.fullmatch(regex, value):
-            return value
-        else:
-            raise serializers.ValidationError("Invalid Aadhar number")
-
-    def validate_pan_number(self, value):
-        regex = r'[A-Z]{5}[0-9]{4}[A-Z]{1}'
-        if re.fullmatch(regex, value):
-            return value
-        else: raise serializers.ValidationError("Invalid PAN")
-
-    def validate_balance(self, value):
-        if value >= 0:
-            return value
-        else: raise serializers.ValidationError("Please input valid balance")
+# class CommentSerializer(serializers.Serializer):
+#
+#
+#     email = serializers.EmailField()
+#     name = serializers.CharField()
+#     mobile_number = serializers.IntegerField()
+#     address = serializers.CharField()
+#     aadhar_number = serializers.IntegerField()
+#     pan_number = serializers.CharField()
+#     balance = serializers.IntegerField()
+#
+#     class Meta:
+#
+#         fields = ['email', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
+#
+#     def restore_object(self, attrs, instance=None):
+#         """
+#         Given a dictionary of deserialized field values, either update
+#         an existing model instance, or create a new model instance.
+#         """
+#         if instance is not None:
+#             instance.email = attrs.get('email', instance.email)
+#             instance.content = attrs.get('name', instance.name)
+#             instance.created = attrs.get('mobile_number', instance.mobile_number)
+#             instance.content = attrs.get('address', instance.address)
+#             instance.created = attrs.get('aadhar_number', instance.aadhar_number)
+#             instance.content = attrs.get('pan_number', instance.pan_number)
+#             instance.created = attrs.get('balance', instance.balance)
+#             return instance
+#         return Comment(**attrs)
+#
+#     def validate_mobile_number(self, value):
+#         if len(str(value)) > 10:
+#             raise serializers.ValidationError('Length of mobile numbers is greater than 10')
+#         elif len(str(value)) < 10:
+#             raise serializers.ValidationError('Length of mobile numbers is smaller than 10')
+#         else:
+#             return value
+#
+#     def validate_aadhar_number(self, value):
+#         regex = r'/^[01]\d{3}[\s-]?\d{4}[\s-]?\d{4}$/'
+#         if re.fullmatch(regex, value):
+#             return value
+#         else:
+#             raise serializers.ValidationError("Invalid Aadhar number")
+#
+#     def validate_pan_number(self, value):
+#         regex = r'[A-Z]{5}[0-9]{4}[A-Z]{1}'
+#         if re.fullmatch(regex, value):
+#             return value
+#         else: raise serializers.ValidationError("Invalid PAN")
+#
+#     def validate_balance(self, value):
+#         if value >= 0:
+#             return value
+#         else: raise serializers.ValidationError("Please input valid balance")

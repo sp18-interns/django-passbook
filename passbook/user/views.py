@@ -284,7 +284,7 @@ class UserProfile(APIView):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
 
-    # permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.9IsAuthenticated]
 
     def post(self, serializer):
         user = User.objects.get(id=self.request.data['user_id'])
@@ -295,6 +295,7 @@ class UserProfile(APIView):
 class UserProfileDetail(APIView):
 
     def get_object(self, pk):
+
         try:
             return User.objects.get(pk=pk)
         except User.DoesNotExist:
@@ -335,7 +336,7 @@ class UserProfileDetail(APIView):
 
     @swagger_auto_schema(request_body=ProfileSerializer)
     def put(self, request, user_id):
-
+        serializer_class = ProfileSerializer()
         profile = Profile.objects.get(user_id=user_id)
         serializer = ProfileSerializer(instance=profile, data=request.data, partial=True)
 
@@ -344,8 +345,8 @@ class UserProfileDetail(APIView):
         # serializer = ProfileSerializer(user, data=request.data)
         # print(serializer)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            data = serializer.save()
+            return Response(data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
