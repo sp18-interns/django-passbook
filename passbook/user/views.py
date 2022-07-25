@@ -163,8 +163,8 @@ class SignUp(generics.GenericAPIView):
         return Response({
             "id": user.id,
             "email": user.email,
-            "token": api_settings.TOKEN_OBTAIN_SERIALIZER
-        })
+            "token": api_settings.TOKEN_OBTAIN_SERIALIZER,
+        }, status=status.HTTP_200_OK)
 
 
 class LoginAPI(generics.GenericAPIView):
@@ -220,6 +220,7 @@ class UserDetail(APIView):
                              'aadhar_number': profile.aadhar_number,
                              'name': profile.name,
                              'address': profile.address,
+                             'pan_number': profile.pan_number,
                              'mobile_number': profile.mobile_number,
                              'balance': profile.balance
                              }, status=status.HTTP_200_OK)
@@ -257,38 +258,6 @@ class UserProfileDetail(APIView):
             print("error")
             pass
 
-    # def get(self, request, user_id):
-    #     try:
-    #         user = User.objects.get(pk=user_id)
-    #         profile = Profile.objects.get(user_id=user)
-    #         print(user)
-    #         print(profile)
-    #         serializer = ProfileSerializer()
-    #         # serializer.restore_object({'email': user.email,
-    #         #                  'aadhar_number': profile.aadhar_number,
-    #         #                  'name': profile.name,
-    #         #                  'address': profile.address,
-    #         #                  'mobile_number': profile.mobile_number,
-    #         #                  'pan_number': profile.pan_number,
-    #         #                  'balance': profile.balance
-    #         #                  },Comment)
-    #         # # serializer.name = profile.name
-    #         # # serializer.email = user.email
-    #         # return Response(serializer.data)
-    #         return Response({'email': user.email,
-    #                          'aadhar_number': profile.aadhar_number,
-    #                          'name': profile.name,
-    #                          'address': profile.address,
-    #                          'mobile_number': profile.mobile_number,
-    #                          'pan_number': profile.pan_number,
-    #                          'balance': profile.balance
-    #                          }, status=status.HTTP_200_OK)
-    #     except user.DoesNotExist:
-    #         return Response({'error': 'profile does not exist'}, status=status.HTTP_404_NOT_FOUND)
-
-        # serializer = ProfileSerializer(User)
-        # return Response(Comment())
-
     @swagger_auto_schema(request_body=ProfileSerializer)
     def put(self, request, user_id):
         serializer_class = ProfileSerializer()
@@ -306,12 +275,14 @@ class UserProfileDetail(APIView):
 
 
 class UserTransaction(generics.ListCreateAPIView):
-    queryset = Transaction.objects.all()
+
+    # permission_classes = [permissions.IsAuthenticated]
+    queryset = Transaction.objects.all()                #get and retrieve
 
     # TODO :- Query profile to get the latest balance
     # use that take appropriate action (like trying to debit more than balance and all)
     serializer_class = TransactionsSerializer
-    # permission_classes = [permissions.IsAuthenticated]
+
 
 
 class UserTransactionDetail(generics.RetrieveUpdateAPIView):

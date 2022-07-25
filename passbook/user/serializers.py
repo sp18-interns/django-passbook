@@ -27,8 +27,6 @@ class SignUpSerializer(serializers.Serializer):
     class Meta:
         fields = ['email', 'password', 'confirm_password']
 
-
-
     def create(self, validated_data):
         data = {'email': validated_data['email'], 'password': validated_data['password']}
         user = User.objects.create(**data)
@@ -141,16 +139,18 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ['email', 'password']
 
 
-class TransactionsSerializer(serializers.Serializer):
-    amount = serializers.IntegerField()
-    transaction_date = serializers.DateTimeField()
-    transaction_type = serializers.CharField()
-    receiver = serializers.CharField()
-    remarks = serializers.CharField()
+
+class TransactionsSerializer(serializers.ModelSerializer):
+    # amount = serializers.IntegerField()
+    # transaction_date = serializers.DateTimeField()
+    # transaction_type = serializers.CharField()
+    # receiver = serializers.CharField()
+    # remarks = serializers.CharField()
 
     class Meta:
-        # model = Transaction
-        fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks']
+        model = Transaction
+        # fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks']
+        fields = "__all__"
 
     def create(self, validated_data):
 

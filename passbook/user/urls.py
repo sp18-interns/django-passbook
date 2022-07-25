@@ -35,7 +35,7 @@ urlpatterns = [
     path('user/<int:pk>/transaction', UserTransaction.as_view(), name='Transaction'),
     # path('user/<int:pk>/transaction/<int:pk>', UserTransactionDetail.as_view(), name='Transactions_details'),
 
-    path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('api/token/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
 
     # path('profile', views.UserProfile.as_view(), name='UserProfile'),
     path('profile/<int:user_id>', UserProfileDetail.as_view(), name='UserProfileDetail'),

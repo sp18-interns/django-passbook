@@ -29,5 +29,5 @@ class Transaction(models.Model):
     transaction_type = models.CharField(max_length=6, choices=TransactionType.choices)
     receiver = models.CharField(max_length=200)
     remarks = models.CharField(max_length=200)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE, related_name="transactions")
     closing_balance = models.IntegerField(null=True)
