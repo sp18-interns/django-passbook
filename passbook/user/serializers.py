@@ -81,15 +81,15 @@ class ProfileSerializer(serializers.Serializer):
         if self.data.serializer.initial_data.get('name'):
             profile.name = self.data.serializer.initial_data['name']
         if self.data.serializer.initial_data.get('mobile_number'):
-            profile.name = self.data.serializer.initial_data['mobile_number']
+            profile.mobile_number = self.data.serializer.initial_data['mobile_number']
         if self.data.serializer.initial_data.get('address'):
-            profile.name = self.data.serializer.initial_data['address']
+            profile.address = self.data.serializer.initial_data['address']
         if self.data.serializer.initial_data.get('aadhar_number'):
-            profile.name = self.data.serializer.initial_data['aadhar_number']
+            profile.aadhar_number = self.data.serializer.initial_data['aadhar_number']
         if self.data.serializer.initial_data.get('pan_number'):
             profile.pan_number = self.data.serializer.initial_data['pan_number']
         if self.data.serializer.initial_data.get('balance'):
-            profile.name = self.data.serializer.initial_data['balance']
+            profile.balance = self.data.serializer.initial_data['balance']
         profile.save()
         # pro = ProfileSerializer()
         # pro.data['email']
@@ -153,6 +153,7 @@ class TransactionsSerializer(serializers.Serializer):
         fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks']
 
     def create(self, validated_data):
+
         return Transaction.objects.create(**validated_data)
 
     def validate_amount(self, value):

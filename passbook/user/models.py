@@ -30,4 +30,4 @@ class Transaction(models.Model):
     receiver = models.CharField(max_length=200)
     remarks = models.CharField(max_length=200)
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    closing_balance = models.IntegerField()
+    closing_balance = models.IntegerField(null=True)
