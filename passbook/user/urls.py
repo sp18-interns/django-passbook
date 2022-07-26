@@ -40,6 +40,8 @@ urlpatterns = [
     # path('profile', views.UserProfile.as_view(), name='UserProfile'),
     path('profile/<int:user_id>', UserProfileDetail.as_view(), name='UserProfileDetail'),
 
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
 

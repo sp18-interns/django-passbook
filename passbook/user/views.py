@@ -10,6 +10,7 @@ from rest_framework import status
 
 from rest_framework import generics, permissions
 
+from rest_framework_simplejwt.tokens import RefreshToken
 # Create your views here.
 
 # class UserViewSet(viewsets.ModelViewSet):
@@ -159,12 +160,16 @@ class SignUp(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        # KnoxUserSerializer.is_valid(raise_exception=True)
+
+        refresh = RefreshToken.for_user(user)
         return Response({
             "id": user.id,
             "email": user.email,
-            "token": api_settings.TOKEN_OBTAIN_SERIALIZER,
-        }, status=status.HTTP_200_OK)
+            "token": {
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+            },
+            }, status=status.HTTP_200_OK)
 
 
 class LoginAPI(generics.GenericAPIView):

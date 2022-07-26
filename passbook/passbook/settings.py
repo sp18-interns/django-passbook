@@ -151,11 +151,16 @@ REST_FRAMEWORK = {
     #     'django_filters.rest_framework.DjangoFilterBackend'
     #  ],
      'DEFAULT_AUTHENTICATION_CLASSES': [
-        'knox.auth.TokenAuthentication'
-        #'rest_framework_simplejwt.authentication.JWTAuthentication',
+        #'knox.auth.TokenAuthentication'
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         #'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
         #'DEFAULT_PERMISSION_CLASSES': ( 'rest_framework.permissions.IsAdminUser',),
      ]
+
+}
+
+SIMPLE_JWT = {
+    'ROTATE_REFRESH_TOKENS' : True,
 
 }
 
