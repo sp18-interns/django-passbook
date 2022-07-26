@@ -11,144 +11,6 @@ from rest_framework import status
 from rest_framework import generics, permissions
 
 from rest_framework_simplejwt.tokens import RefreshToken
-# Create your views here.
-
-# class UserViewSet(viewsets.ModelViewSet):
-#     """
-#     Api endpoints that allows users to be viewed or edited.
-#     """
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#     permission_classes = [permissions.IsAuthenticated]
-
-
-"""
-WRAPPING API VIEWS
-"""
-# @api_view(['GET', 'POST'])
-# def user_list(request, format=None):
-#     """
-#     List all code snippets, or create a new user.
-#     """
-#     if request.method == 'GET':
-#         snippets = User.objects.all()
-#         serializer = UserSerializer(snippets, many=True)
-#         return Response(serializer.data)
-#
-#     elif request.method == 'POST':
-#         serializer = UserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#
-# @api_view(['GET', 'PUT', 'DELETE'])
-# def user_detail(request, pk, format=None):
-#     """
-#      Retrieve, update or delete a code
-#     """
-#     try:
-#         user = User.objects.get(pk - pk)
-#     except User.DoesNotExist:
-#         return Response(status=status.HTTP_404_NOT_FOUND)
-#
-#     if request.method == 'GET':
-#         serializer = UserSerializer(user)
-#         return Response(serializer.data)
-#
-#     elif request.method == 'PUT':
-#         serializer = UserSerializer(user, data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-#     elif request.method == 'DELETE':
-#         user.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-
-"""
-CLASS BASED VIEWS
-"""
-
-# class UserList(APIView):
-#     """
-#     List all snippets, or create a new snippet.
-#     """
-#     def get(self, request, format=None):
-#         snippets = User.objects.all()
-#         serializer = UserSerializer(snippets, many=True)
-#         return Response(serializer.data)
-#
-#     def post(self, request, format=None):
-#         serializer = UserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class UserDetail(APIView):
-
-# def get_object(self, pk):
-#     try:
-#         return User.objects.get(pk=pk)
-#     except User.DoesNotExist:
-#         raise Http404
-#
-# def get(self, request, pk, format=None):
-#     snippet = self.get_object(pk)
-#     serializer = UserSerializer(snippet)
-#     return Response(serializer.data)
-#
-# def put(self, request, pk, format=None):
-#     snippet = self.get_object(pk)
-#     serializer = UserSerializer(snippet, data=request.data)
-#     if serializer.is_valid():
-#         serializer.save(snippet_11)
-#         return Response(serializer.data)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-# def delete(self, request, pk, format=None):
-#     snippet = self.get_object(pk)
-#     snippet.delete()
-#     return Response(status=status.HTTP_204_NO_CONTENT)
-
-# """
-# Using mixins
-# """
-
-# class UserList(mixins.ListModelMixin,
-#                   mixins.CreateModelMixin,
-#                   generics.GenericAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#
-#     def get(self, request, *args, **kwargs):
-#         return self.list(request, *args, **kwargs)
-#
-#     def post(self, request, *args, **kwargs):
-#         return self.create(request, *args, **kwargs)
-#
-# class UserDetail(mixins.RetrieveModelMixin,
-#                     mixins.UpdateModelMixin,
-#                     mixins.DestroyModelMixin,
-#                     generics.GenericAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#
-#     def get(self, request, *args, **kwargs):
-#         return self.retrieve(request, *args, **kwargs)
-#
-#     def put(self, request, *args, **kwargs):
-#         return self.update(request, *args, **kwargs)
-#
-#     def delete(self, request, *args, **kwargs):
-#         return self.destroy(request, *args, **kwargs)
-
-"""
-Using generic class-based views
-"""
 
 
 class SignUp(generics.GenericAPIView):
@@ -161,14 +23,14 @@ class SignUp(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        refresh = RefreshToken.for_user(user)
+        # refresh = RefreshToken.for_user(user)
         return Response({
             "id": user.id,
             "email": user.email,
-            "token": {
-                        'refresh': str(refresh),
-                        'access': str(refresh.access_token),
-            },
+            # "token": {
+            #             'refresh': str(refresh),
+            #             'access': str(refresh.access_token),
+            # },
             }, status=status.HTTP_200_OK)
 
 
@@ -176,46 +38,33 @@ class LoginAPI(generics.GenericAPIView):
 
     serializer_class = LoginSerializer
 
-    def post(self, request, format=None, data=None):
-        # TODO :- If email is not present then an appropriate message ->Please register with our system - DONE
-        # TODO :- Email Present but password wrong - DONE
-        # TODO :- By mistake there 2 or email how will you -DONE
-        # TODO :- If password is not following the basic strength of password
+    def post(self, request):
 
         if (request.data.get('email') is None) or (isinstance(request.data['email'], type(None))):
-            return Response('Please provide the email id', status=status.HTTP_400_BAD_REQUEST)
+            return Response({'email': 'please provide the email id'}, status=status.HTTP_400_BAD_REQUEST)
 
         if (request.data.get('password') is None) or (isinstance(request.data['password'], type(None))):
-            return Response('Please provide the password', status=status.HTTP_400_BAD_REQUEST)
+            return Response({'password': 'please provide the password'}, status=status.HTTP_400_BAD_REQUEST)
 
         else:
             user = User.objects.filter(email=request.data['email'])
             if user:
                 if user.values()[0]['password'] == request.data['password']:
                     data = Profile.objects.filter(user_id=list(user)[0].id)
-                    return Response(f'Login successful.', status=status.HTTP_200_OK)
+                    refresh = RefreshToken.for_user(data)
+                    return Response({'login': 'login successful.',
+                                     "token": {
+                                                     'refresh': str(refresh),
+                                                     'access': str(refresh.access_token),
+                                         }
+                                     }, status=status.HTTP_200_OK)
                 else:
-                    return Response("Please provide the valid password", status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'password': "please provide the valid password"}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response("Please Register with our system", status=status.HTTP_400_BAD_REQUEST)
+                return Response({"invalid": "please register with our system"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserDetail(APIView):
-    # print("data")
-    # queryset = User.objects.all()
-    # serializer_class = UserSerializer
-    # TODO :- user_id, email,aadhar ,pan ,mobile
-    # permission_classes = [permissions.IsAuthenticated]
-
-    # def get_object(self, pk):
-    #     print(pk)
-    #     try:
-    #         user = User.objects.get(pk=pk)
-    #
-    #         profile = Profile.objects.get(user_id=user.id)
-    #         return Response({'user': user.email, 'profile': profile.aadhar_number}, status=status.HTTP_200_OK)
-    #     except User.DoesNotExist:
-    #         return Response("User does not exist in the system.", status=status.HTTP_404_NOT_FOUND)
 
     def get(self, request, pk):
         try:
@@ -230,7 +79,7 @@ class UserDetail(APIView):
                              'balance': profile.balance
                              }, status=status.HTTP_200_OK)
         except User.DoesNotExist:
-            return Response("User does not exist in the system.", status=status.HTTP_404_NOT_FOUND)
+            return Response({"invalid": "user does not exist in the system."}, status=status.HTTP_404_NOT_FOUND)
 
     def delete(self, request, pk):
         try:
@@ -238,7 +87,7 @@ class UserDetail(APIView):
             user.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except:
-            return Response('wrong input', status=status.HTTP_400_BAD_REQUEST)
+            return Response({'invalid': 'wrong input'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfile(APIView):
@@ -279,17 +128,77 @@ class UserProfileDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserTransaction(generics.ListCreateAPIView):
+# class UserTransaction(generics.ListCreateAPIView):
+#
+#     # permission_classes = [permissions.IsAuthenticated]
+#     queryset = Transaction.objects.all()                #get and retrieve
+#
+#     # TODO :- Query profile to get the latest balance
+#     # use that take appropriate action (like trying to debit more than balance and all)
+#     serializer_class = TransactionsSerializer
 
-    # permission_classes = [permissions.IsAuthenticated]
-    queryset = Transaction.objects.all()                #get and retrieve
+# apiview
+# pk -> user_id
 
-    # TODO :- Query profile to get the latest balance
-    # use that take appropriate action (like trying to debit more than balance and all)
-    serializer_class = TransactionsSerializer
+class UserTransaction(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Transaction.objects.filter(user_id_id=pk)
+        except Transaction.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+
+    def get(self, request, pk):
+        user = self.get_object(pk)
+        serializer = TransactionsSerializer(user, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, pk):
+        request.data['user_id'] = pk
+        profile = Profile.objects.get(user_id=pk)
+        amount = request.data['amount']
+        type = request.data['transaction_type']
+        if type == 'Credit':
+            if amount < 0:
+                raise ValueError("Invalid amount ")
+            profile.balance = profile.balance + amount
+        elif request.data['transaction_type'] == 'Debit':
+            if amount > profile.balance:
+                raise ValueError("Inssuf funds")
+            profile.balance = profile.balance - amount
+        profile.save()
+        request.data["closing_balance"] = profile.balance
+        serializer = TransactionsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-class UserTransactionDetail(generics.RetrieveUpdateAPIView):
-    queryset = Transaction.objects.all()
-    serializer_class = TransactionsSerializer
+class UserTransactionDetail(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Transaction.objects.filter(user_id_id=pk)
+        except Transaction.DoesNotExist:
+            raise status.HTTP_404_NOT_FOUND
+
+    def get(self, request,user_id, pk):
+        user = Transaction.objects.filter(user_id_id=user_id, pk=pk)
+        serializer = TransactionsSerializer(user, many=True)
+        return Response(serializer.data)
+
+    def put(self, request, user_id, pk, format=None):
+        transaction = self.get_object(pk)
+        serializer = TransactionsSerializer(transaction, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, user_id, pk):
+        user = self.get_object(pk)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
