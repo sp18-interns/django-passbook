@@ -140,7 +140,6 @@ class LoginSerializer(serializers.ModelSerializer):
         fields = ['email', 'password']
 
 
-
 class TransactionsSerializer(serializers.ModelSerializer):
     # amount = serializers.IntegerField()
     # transaction_date = serializers.DateTimeField()
@@ -152,6 +151,7 @@ class TransactionsSerializer(serializers.ModelSerializer):
         model = Transaction
         # fields = ['amount', 'transaction_date', 'transaction_type', 'receiver', 'remarks']
         fields = "__all__"
+        # read_only_fields = ["user_id"]
 
     def create(self, validated_data):
 

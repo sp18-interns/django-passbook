@@ -18,19 +18,20 @@ class SignUp(generics.GenericAPIView):
     # queryset = User.objects.all()
     serializer_class = SignUpSerializer
 
+    @swagger_auto_schema(request_body=SignUpSerializer)
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # refresh = RefreshToken.for_user(user)
+        refresh = RefreshToken.for_user(user)
         return Response({
             "id": user.id,
             "email": user.email,
-            # "token": {
-            #             'refresh': str(refresh),
-            #             'access': str(refresh.access_token),
-            # },
+            "token": {
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+            },
             }, status=status.HTTP_200_OK)
 
 
@@ -38,6 +39,7 @@ class LoginAPI(generics.GenericAPIView):
 
     serializer_class = LoginSerializer
 
+    # @swagger_auto_schema(request_body=LoginSerializer)
     def post(self, request):
 
         if (request.data.get('email') is None) or (isinstance(request.data['email'], type(None))):
@@ -51,12 +53,12 @@ class LoginAPI(generics.GenericAPIView):
             if user:
                 if user.values()[0]['password'] == request.data['password']:
                     data = Profile.objects.filter(user_id=list(user)[0].id)
-                    refresh = RefreshToken.for_user(data)
+                    # refresh = RefreshToken.for_user(data)
                     return Response({'login': 'login successful.',
-                                     "token": {
-                                                     'refresh': str(refresh),
-                                                     'access': str(refresh.access_token),
-                                         }
+                                     # "token": {
+                                     #                 'refresh': str(refresh),
+                                     #                 'access': str(refresh.access_token),
+                                     #     }
                                      }, status=status.HTTP_200_OK)
                 else:
                     return Response({'password': "please provide the valid password"}, status=status.HTTP_400_BAD_REQUEST)
@@ -96,6 +98,7 @@ class UserProfile(APIView):
 
     # permission_classes = [permissions.9IsAuthenticated]
 
+    @swagger_auto_schema(request_body=ProfileSerializer)
     def post(self, serializer):
         user = User.objects.get(id=self.request.data['user_id'])
         serializer.save(user_id=user)
@@ -153,6 +156,7 @@ class UserTransaction(APIView):
         serializer = TransactionsSerializer(user, many=True)
         return Response(serializer.data)
 
+    @swagger_auto_schema(request_body=TransactionsSerializer)
     def post(self, request, pk):
         request.data['user_id'] = pk
         profile = Profile.objects.get(user_id=pk)
@@ -160,11 +164,11 @@ class UserTransaction(APIView):
         type = request.data['transaction_type']
         if type == 'Credit':
             if amount < 0:
-                raise ValueError("Invalid amount ")
+                raise ValueError("invalid amount ")
             profile.balance = profile.balance + amount
         elif request.data['transaction_type'] == 'Debit':
             if amount > profile.balance:
-                raise ValueError("Inssuf funds")
+                raise ValueError("insufficient funds")
             profile.balance = profile.balance - amount
         profile.save()
         request.data["closing_balance"] = profile.balance
@@ -189,13 +193,14 @@ class UserTransactionDetail(APIView):
         serializer = TransactionsSerializer(user, many=True)
         return Response(serializer.data)
 
-    def put(self, request, user_id, pk, format=None):
-        transaction = self.get_object(pk)
-        serializer = TransactionsSerializer(transaction, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @swagger_auto_schema(request_body=TransactionsSerializer)
+    # def put(self, request, user_id, pk):
+    #     transaction = self.get_object(pk)
+    #     serializer = TransactionsSerializer(transaction, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, user_id, pk):
         user = self.get_object(pk)

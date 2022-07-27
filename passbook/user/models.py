@@ -15,7 +15,7 @@ class Profile(models.Model):
     address = models.CharField(max_length=300)
     aadhar_number = models.BigIntegerField(null=True)
     pan_number = models.CharField(max_length=10)
-    balance = models.IntegerField(null=True)
+    balance = models.IntegerField(default=0)
     user = models.OneToOneField(User, related_name='User', on_delete=models.CASCADE, primary_key=True)
 
 

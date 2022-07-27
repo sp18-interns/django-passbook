@@ -17,9 +17,9 @@ from django.views.generic import TemplateView
 #router.register('user', views.UserViewSet, basename='users')
 
 # schema_view = get_swagger_view(title='Pastebin API')
-from .views import LoginAPI, UserTransaction, UserProfile, SignUp, UserDetail, UserProfileDetail, UserTransactionDetail
+from .views import UserTransaction, UserProfile, SignUp, UserDetail, UserProfileDetail, UserTransactionDetail, LoginAPI
 from knox import views as knox_views
-from .views import LoginAPI
+
 
 
 urlpatterns = [
