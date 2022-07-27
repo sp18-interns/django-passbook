@@ -64,6 +64,14 @@ class UserSerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.Serializer):
     # user = UserSerializer()
 
+    email = serializers.EmailField()
+    name = serializers.CharField()
+    mobile_number = serializers.IntegerField()
+    address = serializers.CharField()
+    aadhar_number = serializers.IntegerField()
+    pan_number = serializers.CharField()
+    balance = serializers.IntegerField()
+
     class Meta:
         # model = Profile
         fields = ['email', 'name', 'mobile_number', 'address', 'aadhar_number', 'pan_number', 'balance']
@@ -74,21 +82,21 @@ class ProfileSerializer(serializers.Serializer):
         # nested_data = validated_data.pop('user')
         user = User.objects.get(pk=instance.pk)
         profile = Profile.objects.get(pk=instance.pk)
-        if self.data.serializer.initial_data.get('email'):
-            user.email = self.data.serializer.initial_data['email']
-            user.save()
-        if self.data.serializer.initial_data.get('name'):
-            profile.name = self.data.serializer.initial_data['name']
-        if self.data.serializer.initial_data.get('mobile_number'):
-            profile.mobile_number = self.data.serializer.initial_data['mobile_number']
-        if self.data.serializer.initial_data.get('address'):
-            profile.address = self.data.serializer.initial_data['address']
-        if self.data.serializer.initial_data.get('aadhar_number'):
-            profile.aadhar_number = self.data.serializer.initial_data['aadhar_number']
-        if self.data.serializer.initial_data.get('pan_number'):
-            profile.pan_number = self.data.serializer.initial_data['pan_number']
-        if self.data.serializer.initial_data.get('balance'):
-            profile.balance = self.data.serializer.initial_data['balance']
+        # if self.data.serializer.initial_data.get('email'):
+        #     user.email = self.data.serializer.initial_data['email']
+        #     user.save()
+        if validated_data['name']:
+            profile.name = validated_data['name']
+        if validated_data.get('mobile_number'):
+            profile.mobile_number = validated_data['mobile_number']
+        if validated_data['address']:
+            profile.address = validated_data['address']
+        if validated_data['aadhar_number']:
+            profile.aadhar_number = validated_data['aadhar_number']
+        if validated_data['pan_number']:
+            profile.pan_number = validated_data['pan_number']
+        # if self.data.serializer.initial_data.get('balance'):
+        #     profile.balance = self.data.serializer.initial_data['balance']
         profile.save()
         # pro = ProfileSerializer()
         # pro.data['email']
@@ -103,7 +111,7 @@ class ProfileSerializer(serializers.Serializer):
                     'balance': profile.balance
                     }
 
-        return response
+        return ProfileSerializer.create(self, validated_data)
 
     def validate_mobile_number(self, value):
         if len(str(value)) > 10:
