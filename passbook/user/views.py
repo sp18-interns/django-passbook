@@ -25,14 +25,14 @@ class SignUp(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        refresh = RefreshToken.for_user(user)
+        # refresh = RefreshToken.for_user(user)
         return Response({
             "id": user.id,
             "email": user.email,
-            "token": {
-                        'refresh': str(refresh),
-                        'access': str(refresh.access_token),
-            },
+            # "token": {
+            #             'refresh': str(refresh),
+            #             'access': str(refresh.access_token),
+            # },
             }, status=status.HTTP_200_OK)
 
 
@@ -116,8 +116,7 @@ class UserProfileDetail(APIView):
         try:
             return User.objects.get(pk=pk)
         except User.DoesNotExist:
-            print("error")
-            pass
+            return Response({"user_id": "id does not exist"})
 
     @swagger_auto_schema(request_body=ProfileSerializer)
     def put(self, request, user_id):
@@ -166,13 +165,16 @@ class UserTransaction(APIView):
         profile = Profile.objects.get(user_id=pk)
         amount = request.data['amount']
         type = request.data['transaction_type']
+
         if type == 'Credit':
             if amount < 0:
-                raise ValueError("invalid amount ")
+                return Response({"amount": "invalid amount"}, status=status.HTTP_400_BAD_REQUEST)
             profile.balance = profile.balance + amount
         elif request.data['transaction_type'] == 'Debit':
-            if amount > profile.balance:
-                raise ValueError("insufficient funds")
+            if amount < 0:
+                return Response({"amount": "amount should be positive"}, status=status.HTTP_400_BAD_REQUEST)
+            elif amount > profile.balance:
+                return Response({"balance": "insufficient funds"}, status=status.HTTP_400_BAD_REQUEST)
             profile.balance = profile.balance - amount
         profile.save()
         request.data["closing_balance"] = profile.balance
@@ -206,8 +208,8 @@ class UserTransactionDetail(APIView):
     #         return Response(serializer.data, status=status.HTTP_201_CREATED)
     #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, user_id, pk):
-        user = self.get_object(pk)
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
+    # def delete(self, request, user_id, pk):
+    #     user = self.get_object(pk)
+    #     user.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
+    #

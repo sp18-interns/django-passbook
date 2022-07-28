@@ -36,7 +36,7 @@ class SignUpSerializer(serializers.Serializer):
 
     def validate(self, data):
         if data.get('password') != data.get('confirm_password'):
-            raise serializers.ValidationError({'Password': 'Password does not match'})
+            raise serializers.ValidationError({'password': 'password does not match'})
         return data
 
     def validate_email(self, value):
@@ -45,11 +45,11 @@ class SignUpSerializer(serializers.Serializer):
             # print("Valid Email")
             return value
         else:
-            raise serializers.ValidationError("Invalid Email")
+            raise serializers.ValidationError({"email": "invalid email"})
 
     def validate_password(self, value):
         if len(value) < 6:
-            raise serializers.ValidationError('Password is too short!')
+            raise serializers.ValidationError({"password": "password is too short!"})
         else:
             return value
 
@@ -81,7 +81,7 @@ class ProfileSerializer(serializers.Serializer):
         # nested_instance = instance.user
         # nested_data = validated_data.pop('user')
         user = User.objects.get(pk=instance.pk)
-        profile = Profile.objects.get(pk=instance.pk)
+        profile = Profile.objects.get(user_id=instance.pk)
         # if self.data.serializer.initial_data.get('email'):
         #     user.email = self.data.serializer.initial_data['email']
         #     user.save()
@@ -102,16 +102,17 @@ class ProfileSerializer(serializers.Serializer):
         # pro.data['email']
 
         # nested_serializer.update(nested_instance, nested_data)
-        response = {'email': user.email,
-                    'name': profile.name,
-                    'mobile_number': profile.mobile_number,
-                    'address': profile.address,
-                    'aadhar_number': profile.aadhar_number,
-                    'pan_number': profile.pan_number,
-                    'balance': profile.balance
-                    }
+        response = {
+            'email': user.email,
+            'name': profile.name,
+            'mobile_number': profile.mobile_number,
+            'address': profile.address,
+            'aadhar_number': profile.aadhar_number,
+            'pan_number': profile.pan_number,
+            'balance': profile.balance
+        }
 
-        return ProfileSerializer.create(self, validated_data)
+        return response
 
     def validate_mobile_number(self, value):
         if len(str(value)) > 10:
@@ -184,6 +185,3 @@ class TransactionsSerializer(serializers.ModelSerializer):
             return data
         else:
             return serializers.ValidationError("Please provide receiver's name greater than 3 letters")
-
-
-

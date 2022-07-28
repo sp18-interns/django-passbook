@@ -32,7 +32,7 @@ urlpatterns = [
     # path('user', views.UserList.as_view()),
     path('user/<int:pk>', UserDetail.as_view(), name="User_details"),
 
-    # TODO :- mixing to get the <int:pk>
+
     path('user/<int:pk>/transaction', UserTransaction.as_view(), name='Transaction'),
     path('user/<int:user_id>/transaction/<int:pk>', UserTransactionDetail.as_view(), name='Transactions_details'),
 
